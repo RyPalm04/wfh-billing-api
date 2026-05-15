@@ -1,8 +1,8 @@
 package com.palmer.wfhbillingapi.controller;
 
 import com.palmer.wfhbillingapi.dto.StatementRequest;
-import com.palmer.wfhbillingapi.model.SavedStatement;
-import com.palmer.wfhbillingapi.model.StatementSummary;
+import com.palmer.wfhbillingapi.model.statement.SavedStatement;
+import com.palmer.wfhbillingapi.model.statement.StatementSummary;
 import com.palmer.wfhbillingapi.service.SavedStatementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,6 @@
 package com.palmer.wfhbillingapi.converter;
 
-import com.palmer.wfhbillingapi.model.Merchandise;
+import com.palmer.wfhbillingapi.model.catalog.Merchandise;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 

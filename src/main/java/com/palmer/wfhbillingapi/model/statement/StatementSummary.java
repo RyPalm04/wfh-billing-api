@@ -1,4 +1,4 @@
-package com.palmer.wfhbillingapi.model;
+package com.palmer.wfhbillingapi.model.statement;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

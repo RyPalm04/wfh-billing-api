@@ -1,4 +1,4 @@
-package com.palmer.wfhbillingapi.model;
+package com.palmer.wfhbillingapi.model.lineitem;
 
 import java.math.BigDecimal;
 

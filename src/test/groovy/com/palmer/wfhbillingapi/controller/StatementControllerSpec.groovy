@@ -3,8 +3,8 @@ package com.palmer.wfhbillingapi.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.palmer.wfhbillingapi.dto.StatementRequest
-import com.palmer.wfhbillingapi.model.SavedStatement
-import com.palmer.wfhbillingapi.model.StatementSummary
+import com.palmer.wfhbillingapi.model.statement.SavedStatement
+import com.palmer.wfhbillingapi.model.statement.StatementSummary
 import com.palmer.wfhbillingapi.service.SavedStatementService
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc

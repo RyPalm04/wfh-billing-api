@@ -1,6 +1,6 @@
 package com.palmer.wfhbillingapi.mapper;
 
-import com.palmer.wfhbillingapi.model.StatementSpecialChargeLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

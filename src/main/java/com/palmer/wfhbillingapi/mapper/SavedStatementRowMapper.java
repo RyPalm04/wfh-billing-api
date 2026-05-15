@@ -1,10 +1,10 @@
 package com.palmer.wfhbillingapi.mapper;
 
-import com.palmer.wfhbillingapi.model.SavedStatement;
-import com.palmer.wfhbillingapi.model.StatementCashAdvanceLineItem;
-import com.palmer.wfhbillingapi.model.StatementMerchandiseLineItem;
-import com.palmer.wfhbillingapi.model.StatementServiceLineItem;
-import com.palmer.wfhbillingapi.model.StatementSpecialChargeLineItem;
+import com.palmer.wfhbillingapi.model.statement.SavedStatement;
+import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

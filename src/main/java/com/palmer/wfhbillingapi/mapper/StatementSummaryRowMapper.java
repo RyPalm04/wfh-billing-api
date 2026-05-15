@@ -1,6 +1,6 @@
 package com.palmer.wfhbillingapi.mapper;
 
-import com.palmer.wfhbillingapi.model.StatementSummary;
+import com.palmer.wfhbillingapi.model.statement.StatementSummary;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

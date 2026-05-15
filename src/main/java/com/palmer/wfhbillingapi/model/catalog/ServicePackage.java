@@ -1,21 +1,23 @@
-package com.palmer.wfhbillingapi.model;
+package com.palmer.wfhbillingapi.model.catalog;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table("cash_advances")
-public class CashAdvance {
+import java.math.BigDecimal;
+
+@Table("service_packages")
+public class ServicePackage {
     @Id
     private final int id;
     private final int sortOrder;
     private final String name;
-    private final boolean includedInPackage;
+    private final BigDecimal defaultCost;
 
-    public CashAdvance(int id, int sortOrder, String name, boolean includedInPackage) {
+    public ServicePackage(int id, int sortOrder, String name, BigDecimal defaultCost) {
         this.id = id;
         this.sortOrder = sortOrder;
         this.name = name;
-        this.includedInPackage = includedInPackage;
+        this.defaultCost = defaultCost;
     }
 
     public int getId() {
@@ -30,7 +32,7 @@ public class CashAdvance {
         return name;
     }
 
-    public boolean isIncludedInPackage() {
-        return includedInPackage;
+    public BigDecimal getDefaultCost() {
+        return defaultCost;
     }
 }

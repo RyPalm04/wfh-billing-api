@@ -1,4 +1,4 @@
-package com.palmer.wfhbillingapi.model;
+package com.palmer.wfhbillingapi.model.catalog;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
