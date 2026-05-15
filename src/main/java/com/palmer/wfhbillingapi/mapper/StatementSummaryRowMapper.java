@@ -26,8 +26,8 @@ public class StatementSummaryRowMapper implements RowMapper<StatementSummary> {
             return null;
         }
 
-        return new StatementSummary(rs.getInt("id"), rs.getInt("controlNumber"),
-                rs.getString("servicesForName"), rs.getObject("serviceDate", LocalDate.class),
-                rs.getObject("savedAt", LocalDateTime.class));
+        return new StatementSummary(rs.getInt("id"), rs.getInt("control_number"),
+                rs.getString("services_for_name"), rs.getObject("service_date", LocalDate.class),
+                rs.getObject("saved_at", LocalDateTime.class));
     }
 }

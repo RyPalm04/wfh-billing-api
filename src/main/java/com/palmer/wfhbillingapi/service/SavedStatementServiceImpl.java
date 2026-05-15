@@ -31,7 +31,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
 
     private static final String SELECT_ALL_SUMMARIES = "SELECT id, control_number, services_for_name, service_date, saved_at " + "FROM saved_statements ORDER BY saved_at DESC";
 
-    private static final String SELECT_STATEMENT = "SELECT id, control_number, services_for_name, date_of_death, place_of_death, " + "service_date, reason_for_embalming, package_id, sales_tax_rate, payment " + "FROM saved_statements WHERE id = ?";
+    private static final String SELECT_STATEMENT = "SELECT id, control_number, services_for_name, date_of_death, place_of_death, service_date, reason_for_embalming, package_id, sales_tax_rate, payment, saved_at FROM saved_statements WHERE id = ?";
 
     private static final String SELECT_SERVICES = "SELECT service_id, in_package FROM saved_statement_services WHERE statement_id = ?";
 
@@ -100,7 +100,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         wfhBillingJdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_STATEMENT, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_STATEMENT, new String[]{"id"});
 
             preparedStatement.setInt(1, request.controlNumber());
             preparedStatement.setString(2, request.servicesForName());
