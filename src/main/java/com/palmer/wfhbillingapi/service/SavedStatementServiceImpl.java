@@ -13,6 +13,8 @@ import com.palmer.wfhbillingapi.model.StatementMerchandiseLineItem;
 import com.palmer.wfhbillingapi.model.StatementServiceLineItem;
 import com.palmer.wfhbillingapi.model.StatementSpecialChargeLineItem;
 import com.palmer.wfhbillingapi.model.StatementSummary;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
@@ -29,48 +30,111 @@ import java.util.Objects;
 @Service
 public class SavedStatementServiceImpl implements SavedStatementService {
 
-    private static final String SELECT_ALL_SUMMARIES = "SELECT id, control_number, services_for_name, service_date, saved_at " + "FROM saved_statements ORDER BY saved_at DESC";
+    private static final Logger LOGGER = LoggerFactory.getLogger(SavedStatementServiceImpl.class);
 
-    private static final String SELECT_STATEMENT = "SELECT id, control_number, services_for_name, date_of_death, place_of_death, service_date, reason_for_embalming, package_id, sales_tax_rate, payment, saved_at FROM saved_statements WHERE id = ?";
+    private static final String SELECT_ALL_SUMMARIES = """
+            SELECT id, control_number, services_for_name, service_date, saved_at
+            FROM saved_statements
+            ORDER BY saved_at DESC
+            """;
 
-    private static final String SELECT_SERVICES = "SELECT service_id, in_package FROM saved_statement_services WHERE statement_id = ?";
+    private static final String SELECT_STATEMENT = """
+            SELECT id, control_number, services_for_name, date_of_death, place_of_death,
+                   service_date, reason_for_embalming, package_id, sales_tax_rate, payment, saved_at
+            FROM saved_statements
+            WHERE id = ?
+            """;
 
-    private static final String SELECT_MERCHANDISE = "SELECT merchandise_id, price, description FROM saved_statement_merchandise WHERE statement_id = ?";
+    private static final String SELECT_SERVICES = """
+            SELECT service_id, in_package
+            FROM saved_statement_services
+            WHERE statement_id = ?
+            """;
 
-    private static final String SELECT_SPECIAL_CHARGES = "SELECT special_charge_id, price, description FROM saved_statement_special_charges WHERE statement_id = ?";
+    private static final String SELECT_MERCHANDISE = """
+            SELECT merchandise_id, price, description
+            FROM saved_statement_merchandise
+            WHERE statement_id = ?
+            """;
 
-    private static final String SELECT_CASH_ADVANCES = "SELECT cash_advance_id, amount, provider FROM saved_statement_cash_advances WHERE statement_id = ?";
+    private static final String SELECT_SPECIAL_CHARGES = """
+            SELECT special_charge_id, price, description
+            FROM saved_statement_special_charges
+            WHERE statement_id = ?
+            """;
 
-    private static final String INSERT_STATEMENT = "INSERT INTO saved_statements (control_number, services_for_name, date_of_death, place_of_death, service_date, reason_for_embalming, package_id, sales_tax_rate, payment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_CASH_ADVANCES = """
+            SELECT cash_advance_id, amount, provider
+            FROM saved_statement_cash_advances
+            WHERE statement_id = ?
+            """;
 
-    private static final String INSERT_SERVICE = "INSERT INTO saved_statement_services (statement_id, service_id, in_package) VALUES (?, ?, ?)";
+    private static final String INSERT_STATEMENT = """
+            INSERT INTO saved_statements
+                (control_number, services_for_name, date_of_death, place_of_death,
+                 service_date, reason_for_embalming, package_id, sales_tax_rate, payment)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """;
 
-    private static final String INSERT_MERCHANDISE = "INSERT INTO saved_statement_merchandise (statement_id, merchandise_id, price, description) " + "VALUES (?, ?, ?, ?)";
+    private static final String INSERT_SERVICE = """
+            INSERT INTO saved_statement_services (statement_id, service_id, in_package)
+            VALUES (?, ?, ?)
+            """;
 
-    private static final String INSERT_SPECIAL_CHARGE = "INSERT INTO saved_statement_special_charges (statement_id, special_charge_id, price, description) " + "VALUES (?, ?, ?, ?)";
+    private static final String INSERT_MERCHANDISE = """
+            INSERT INTO saved_statement_merchandise (statement_id, merchandise_id, price, description)
+            VALUES (?, ?, ?, ?)
+            """;
 
-    private static final String INSERT_CASH_ADVANCE = "INSERT INTO saved_statement_cash_advances (statement_id, cash_advance_id, amount, provider) " + "VALUES (?, ?, ?, ?)";
+    private static final String INSERT_SPECIAL_CHARGE = """
+            INSERT INTO saved_statement_special_charges (statement_id, special_charge_id, price, description)
+            VALUES (?, ?, ?, ?)
+            """;
 
-    private static final String UPDATE_STATEMENT = "UPDATE saved_statements SET services_for_name = ?, date_of_death = ?, place_of_death = ?, " + "service_date = ?, reason_for_embalming = ?, package_id = ?, sales_tax_rate = ?, payment = ?, saved_at = CURRENT_TIMESTAMP WHERE id = ?";
+    private static final String INSERT_CASH_ADVANCE = """
+            INSERT INTO saved_statement_cash_advances (statement_id, cash_advance_id, amount, provider)
+            VALUES (?, ?, ?, ?)
+            """;
 
-    private static final String DELETE_SERVICE = "DELETE FROM saved_statement_services WHERE statement_id = ?;";
+    private static final String UPDATE_STATEMENT = """
+            UPDATE saved_statements
+            SET services_for_name = ?, date_of_death = ?, place_of_death = ?,
+                service_date = ?, reason_for_embalming = ?, package_id = ?,
+                sales_tax_rate = ?, payment = ?, saved_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            """;
 
-    private static final String DELETE_MERCHANDISE = "DELETE FROM saved_statement_merchandise WHERE statement_id = ?;";
+    private static final String DELETE_SERVICE = """
+            DELETE FROM saved_statement_services
+            WHERE statement_id = ?
+            """;
 
-    private static final String DELETE_SPECIAL_CHARGE = "DELETE FROM saved_statement_special_charges WHERE statement_id = ?;";
+    private static final String DELETE_MERCHANDISE = """
+            DELETE FROM saved_statement_merchandise
+            WHERE statement_id = ?
+            """;
 
-    private static final String DELETE_CASH_ADVANCES = "DELETE FROM saved_statement_cash_advances WHERE statement_id = ?";
+    private static final String DELETE_SPECIAL_CHARGE = """
+            DELETE FROM saved_statement_special_charges
+            WHERE statement_id = ?
+            """;
+
+    private static final String DELETE_CASH_ADVANCES = """
+            DELETE FROM saved_statement_cash_advances
+            WHERE statement_id = ?
+            """;
 
     private static final String SELECT_MAX_CONTROL_NUMBER = "SELECT MAX(control_number) FROM saved_statements";
 
     @Autowired
-    JdbcTemplate wfhBillingJdbcTemplate;
+    private JdbcTemplate wfhBillingJdbcTemplate;
 
     /**
      * @return
      */
     @Override
     public List<StatementSummary> findAll() {
+        LOGGER.debug("Finding all saved statements");
         return wfhBillingJdbcTemplate.query(SELECT_ALL_SUMMARIES, new StatementSummaryRowMapper());
     }
 
@@ -81,6 +145,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
      */
     @Override
     public SavedStatement findById(int id) {
+        LOGGER.debug("Finding saved statement by id {}", id);
         List<StatementServiceLineItem> statementServiceLineItems = wfhBillingJdbcTemplate.query(SELECT_SERVICES, new StatementServiceLineItemRowMapper(), id);
         List<StatementMerchandiseLineItem> statementMerchandiseLineItems = wfhBillingJdbcTemplate.query(SELECT_MERCHANDISE, new StatementMerchandiseLineItemRowMapper(), id);
         List<StatementSpecialChargeLineItem> statementSpecialChargeLineItems = wfhBillingJdbcTemplate.query(SELECT_SPECIAL_CHARGES, new StatementSpecialChargeLineItemRowMapper(), id);
@@ -97,6 +162,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     @Transactional
     @Override
     public SavedStatement insertSavedStatement(StatementRequest request) {
+        LOGGER.debug("Inserting saved statement {}", request);
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         wfhBillingJdbcTemplate.update(connection -> {
@@ -121,6 +187,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
         Number key = keyHolder.getKey();
 
         if (Objects.isNull(key)) {
+            LOGGER.error("Insert saved statement key is null");
             throw new IllegalStateException("Insert succeeded but no generated key was returned");
         }
 
@@ -140,9 +207,11 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     @Transactional
     @Override
     public SavedStatement update(int id, StatementRequest request) {
+        LOGGER.debug("Updating saved statement {}", request);
         Integer rowCount = wfhBillingJdbcTemplate.queryForObject("SELECT COUNT(*) FROM saved_statements WHERE id = ?", Integer.class, id);
 
         if (Objects.nonNull(rowCount) && !rowCount.equals(1)) {
+            LOGGER.error("Statement requested to be updated not found. id={}", id);
             throw new IllegalStateException("Statement not found: " + id);
         }
 
@@ -169,6 +238,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     }
 
     private void insertLineItems(StatementRequest request, int savedStatementId) {
+        LOGGER.debug("Inserting line items for saved statement {}", request);
         wfhBillingJdbcTemplate.batchUpdate(INSERT_SERVICE, request.services(), request.services().size(), (preparedStatement, item) -> {
             preparedStatement.setInt(1, savedStatementId);
             preparedStatement.setInt(2, item.serviceId());
@@ -202,7 +272,15 @@ public class SavedStatementServiceImpl implements SavedStatementService {
      */
     @Override
     public int nextControlNumber() {
+        LOGGER.debug("Next control number called");
         Integer max = wfhBillingJdbcTemplate.queryForObject(SELECT_MAX_CONTROL_NUMBER, Integer.class);
-        return max == null ? 1 : max + 1;
+
+        if (max == null) {
+            LOGGER.debug("Next control number is null returning 1");
+            return 1;
+        }
+
+        LOGGER.debug("Next control number is {}", max + 1);
+        return max + 1;
     }
 }

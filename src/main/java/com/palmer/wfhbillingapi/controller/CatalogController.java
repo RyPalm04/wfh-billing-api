@@ -10,6 +10,8 @@ import com.palmer.wfhbillingapi.repository.MerchandiseRepository;
 import com.palmer.wfhbillingapi.repository.ServicePackageRepository;
 import com.palmer.wfhbillingapi.repository.ServiceRepository;
 import com.palmer.wfhbillingapi.repository.SpecialChargeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/catalog")
 public class CatalogController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CatalogController.class);
 
     private final CashAdvanceRepository cashAdvanceRepository;
     private final MerchandiseRepository merchandiseRepository;
@@ -34,26 +38,31 @@ public class CatalogController {
 
     @GetMapping("cash-advances")
     public Iterable<CashAdvance> getCashAdvances() {
+        LOGGER.debug("getCashAdvances called");
         return cashAdvanceRepository.findAll();
     }
 
     @GetMapping("merchandise")
     public Iterable<Merchandise> getMerchandise() {
+        LOGGER.debug("getMerchandise called");
         return merchandiseRepository.findAll();
     }
 
     @GetMapping("services")
     public Iterable<Service> getServices() {
+        LOGGER.debug("getServices called");
         return serviceRepository.findAll();
     }
 
     @GetMapping("packages")
     public Iterable<ServicePackage> getPackages() {
+        LOGGER.debug("getPackages called");
         return servicePackageRepository.findAll();
     }
 
     @GetMapping("special-charges")
     public Iterable<SpecialCharge> getSpecialCharges() {
+        LOGGER.debug("getSpecialCharges called");
         return specialChargeRepository.findAll();
     }
 }

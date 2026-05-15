@@ -4,6 +4,8 @@ import com.palmer.wfhbillingapi.dto.StatementRequest;
 import com.palmer.wfhbillingapi.model.SavedStatement;
 import com.palmer.wfhbillingapi.model.StatementSummary;
 import com.palmer.wfhbillingapi.service.SavedStatementService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import java.util.List;
 @RequestMapping("/statements")
 public class StatementController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatementController.class);
     private final SavedStatementService savedStatementService;
 
     public StatementController(SavedStatementService savedStatementService) {
@@ -27,27 +30,32 @@ public class StatementController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<StatementSummary>> getStatements(){
+    public ResponseEntity<List<StatementSummary>> getStatements() {
+        LOGGER.debug("getStatements called");
         return ResponseEntity.ok(savedStatementService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SavedStatement> getStatement(@PathVariable int id){
+    public ResponseEntity<SavedStatement> getStatement(@PathVariable int id) {
+        LOGGER.debug("getStatement called with id {}", id);
         return ResponseEntity.ok(savedStatementService.findById(id));
     }
 
     @PostMapping()
-    public ResponseEntity<SavedStatement> addStatement(@RequestBody StatementRequest statementRequest){
+    public ResponseEntity<SavedStatement> addStatement(@RequestBody StatementRequest statementRequest) {
+        LOGGER.debug("addStatement called");
         return ResponseEntity.status(HttpStatus.CREATED).body(savedStatementService.insertSavedStatement(statementRequest));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SavedStatement> updateStatement(@PathVariable int id, @RequestBody StatementRequest statementRequest){
+    public ResponseEntity<SavedStatement> updateStatement(@PathVariable int id, @RequestBody StatementRequest statementRequest) {
+        LOGGER.debug("updateStatement called with id {}", id);
         return ResponseEntity.ok(savedStatementService.update(id, statementRequest));
     }
 
     @GetMapping("/next-control-number")
-    public int getNextControlNumber(){
+    public int getNextControlNumber() {
+        LOGGER.debug("getNextControlNumber called");
         return savedStatementService.nextControlNumber();
     }
 }
