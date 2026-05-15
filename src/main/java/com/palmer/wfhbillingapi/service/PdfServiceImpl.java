@@ -8,6 +8,7 @@ import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
+import com.palmer.wfhbillingapi.model.statement.PdfResult;
 import com.palmer.wfhbillingapi.model.statement.SavedStatement;
 import com.palmer.wfhbillingapi.model.statement.StatementCalculator;
 import com.palmer.wfhbillingapi.repository.CashAdvanceRepository;
@@ -73,7 +74,7 @@ public class PdfServiceImpl implements PdfService {
      * @throws IOException
      */
     @Override
-    public byte[] generatePdf(int statementId) throws IOException {
+    public PdfResult generatePdf(int statementId) throws IOException {
         SavedStatement stmt = savedStatementService.findById(statementId);
 
         List<com.palmer.wfhbillingapi.model.catalog.Service> services = StreamSupport.stream(serviceRepository.findAll().spliterator(), false).toList();
@@ -86,7 +87,7 @@ public class PdfServiceImpl implements PdfService {
 
         try {
             JasperPrint print = fill(stmt, services, merchandise, specialCharges, cashAdvances, pkg);
-            return JasperExportManager.exportReportToPdf(print);
+            return new PdfResult(JasperExportManager.exportReportToPdf(print), statementId);
         } catch (JRException e) {
             throw new IOException("PDF generation failed: " + e.getMessage(), e);
         }

@@ -1,8 +1,10 @@
 package com.palmer.wfhbillingapi.service;
 
+import com.palmer.wfhbillingapi.model.statement.PdfResult;
+
 import java.io.IOException;
 
 public interface PdfService {
 
-    byte[] generatePdf(int statementId) throws IOException;
+    PdfResult generatePdf(int statementId) throws IOException;
 }
