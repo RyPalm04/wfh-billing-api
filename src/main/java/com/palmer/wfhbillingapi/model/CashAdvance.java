@@ -9,11 +9,13 @@ public class CashAdvance {
     private final int id;
     private final int sortOrder;
     private final String name;
+    private final boolean includedInPackage;
 
-    public CashAdvance(int id, int sortOrder, String name) {
+    public CashAdvance(int id, int sortOrder, String name, boolean includedInPackage) {
         this.id = id;
         this.sortOrder = sortOrder;
         this.name = name;
+        this.includedInPackage = includedInPackage;
     }
 
     public int getId() {
@@ -26,5 +28,9 @@ public class CashAdvance {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isIncludedInPackage() {
+        return includedInPackage;
     }
 }

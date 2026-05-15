@@ -10,7 +10,6 @@ import com.palmer.wfhbillingapi.repository.MerchandiseRepository;
 import com.palmer.wfhbillingapi.repository.ServicePackageRepository;
 import com.palmer.wfhbillingapi.repository.ServiceRepository;
 import com.palmer.wfhbillingapi.repository.SpecialChargeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,28 +17,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/catalog")
 public class CatalogController {
-    @Autowired
-    private CashAdvanceRepository cashAdvanceRepository;
 
-    @Autowired
-    private MerchandiseRepository merchandiseRepository;
+    private final CashAdvanceRepository cashAdvanceRepository;
+    private final MerchandiseRepository merchandiseRepository;
+    private final ServiceRepository serviceRepository;
+    private final ServicePackageRepository servicePackageRepository;
+    private final SpecialChargeRepository specialChargeRepository;
 
-    @Autowired
-    private ServiceRepository serviceRepository;
-
-    @Autowired
-    private ServicePackageRepository servicePackageRepository;
-
-    @Autowired
-    private SpecialChargeRepository specialChargeRepository;
+    public CatalogController(CashAdvanceRepository cashAdvanceRepository, MerchandiseRepository merchandiseRepository, ServiceRepository serviceRepository, ServicePackageRepository servicePackageRepository, SpecialChargeRepository specialChargeRepository) {
+        this.cashAdvanceRepository = cashAdvanceRepository;
+        this.merchandiseRepository = merchandiseRepository;
+        this.serviceRepository = serviceRepository;
+        this.servicePackageRepository = servicePackageRepository;
+        this.specialChargeRepository = specialChargeRepository;
+    }
 
     @GetMapping("cash-advances")
-    public Iterable<CashAdvance> getCashAdvances(){
+    public Iterable<CashAdvance> getCashAdvances() {
         return cashAdvanceRepository.findAll();
     }
 
     @GetMapping("merchandise")
-    public Iterable<Merchandise> getMerchandise(){
+    public Iterable<Merchandise> getMerchandise() {
         return merchandiseRepository.findAll();
     }
 
