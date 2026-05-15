@@ -30,6 +30,7 @@ dependencies {
     testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
     testImplementation("org.spockframework:spock-spring:2.3-groovy-4.0")
     testImplementation("org.apache.groovy:groovy:4.0.24")
+    testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 }
 
 tasks.withType<Test> {
