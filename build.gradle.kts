@@ -23,6 +23,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
+    implementation ("net.sf.jasperreports:jasperreports:6.21.5")
+    // JAXB — removed from the JDK after Java 8, but JasperReports still needs it
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")

@@ -1,11 +1,14 @@
 package com.palmer.wfhbillingapi.mapper;
 
-import com.palmer.wfhbillingapi.model.StatementMerchandiseLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Maps a {@code saved_statement_merchandise} result set row to a {@link StatementMerchandiseLineItem}.
+ */
 public class StatementMerchandiseLineItemRowMapper implements RowMapper<StatementMerchandiseLineItem> {
 
     @Override

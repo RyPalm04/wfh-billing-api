@@ -7,12 +7,12 @@ import com.palmer.wfhbillingapi.mapper.StatementMerchandiseLineItemRowMapper;
 import com.palmer.wfhbillingapi.mapper.StatementServiceLineItemRowMapper;
 import com.palmer.wfhbillingapi.mapper.StatementSpecialChargeLineItemRowMapper;
 import com.palmer.wfhbillingapi.mapper.StatementSummaryRowMapper;
-import com.palmer.wfhbillingapi.model.SavedStatement;
-import com.palmer.wfhbillingapi.model.StatementCashAdvanceLineItem;
-import com.palmer.wfhbillingapi.model.StatementMerchandiseLineItem;
-import com.palmer.wfhbillingapi.model.StatementServiceLineItem;
-import com.palmer.wfhbillingapi.model.StatementSpecialChargeLineItem;
-import com.palmer.wfhbillingapi.model.StatementSummary;
+import com.palmer.wfhbillingapi.model.statement.SavedStatement;
+import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
+import com.palmer.wfhbillingapi.model.statement.StatementSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,12 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * {@link SavedStatementService} implementation backed by {@link JdbcTemplate}.
+ * Multi-table reads (statement + four line item tables) are performed with separate
+ * queries and assembled in {@link com.palmer.wfhbillingapi.mapper.SavedStatementRowMapper}.
+ * Write operations are transactional and use a delete-and-reinsert strategy for line items.
+ */
 @Service
 public class SavedStatementServiceImpl implements SavedStatementService {
 
@@ -129,20 +135,12 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     @Autowired
     private JdbcTemplate wfhBillingJdbcTemplate;
 
-    /**
-     * @return
-     */
     @Override
     public List<StatementSummary> findAll() {
         LOGGER.debug("Finding all saved statements");
         return wfhBillingJdbcTemplate.query(SELECT_ALL_SUMMARIES, new StatementSummaryRowMapper());
     }
 
-    /**
-     * @param id
-     *
-     * @return
-     */
     @Override
     public SavedStatement findById(int id) {
         LOGGER.debug("Finding saved statement by id {}", id);
@@ -154,11 +152,6 @@ public class SavedStatementServiceImpl implements SavedStatementService {
         return wfhBillingJdbcTemplate.queryForObject(SELECT_STATEMENT, new SavedStatementRowMapper(statementServiceLineItems, statementMerchandiseLineItems, statementSpecialChargeLineItems, statementCashAdvanceLineItems), id);
     }
 
-    /**
-     * @param request
-     *
-     * @return
-     */
     @Transactional
     @Override
     public SavedStatement insertSavedStatement(StatementRequest request) {
@@ -198,12 +191,6 @@ public class SavedStatementServiceImpl implements SavedStatementService {
         return findById(savedStatementId);
     }
 
-    /**
-     * @param id
-     * @param request
-     *
-     * @return
-     */
     @Transactional
     @Override
     public SavedStatement update(int id, StatementRequest request) {
@@ -267,9 +254,6 @@ public class SavedStatementServiceImpl implements SavedStatementService {
         });
     }
 
-    /**
-     * @return
-     */
     @Override
     public int nextControlNumber() {
         LOGGER.debug("Next control number called");

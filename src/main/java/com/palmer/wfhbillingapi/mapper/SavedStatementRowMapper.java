@@ -1,10 +1,10 @@
 package com.palmer.wfhbillingapi.mapper;
 
-import com.palmer.wfhbillingapi.model.SavedStatement;
-import com.palmer.wfhbillingapi.model.StatementCashAdvanceLineItem;
-import com.palmer.wfhbillingapi.model.StatementMerchandiseLineItem;
-import com.palmer.wfhbillingapi.model.StatementServiceLineItem;
-import com.palmer.wfhbillingapi.model.StatementSpecialChargeLineItem;
+import com.palmer.wfhbillingapi.model.statement.SavedStatement;
+import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -13,6 +13,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Maps a {@code saved_statements} result set row to a {@link SavedStatement}. The four
+ * line item collections are pre-fetched and injected via the constructor, since JDBC
+ * does not support nested result sets — each collection requires a separate query before
+ * the statement row is mapped.
+ */
 public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
 
     private final List<StatementServiceLineItem> services;
@@ -29,14 +35,13 @@ public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
     }
 
     /**
-     * @param rs
-     *         the {@code ResultSet} to map (pre-initialized for the current row)
-     * @param rowNum
-     *         the number of the current row
+     * Maps the current row of the {@code saved_statements} result set to a {@link SavedStatement},
+     * attaching the pre-fetched line item lists supplied at construction time.
      *
-     * @return
-     *
-     * @throws SQLException
+     * @param rs     the {@code ResultSet} pre-positioned at the current row
+     * @param rowNum the number of the current row
+     * @return a fully populated {@link SavedStatement}
+     * @throws SQLException if any column cannot be read
      */
     @Override
     public SavedStatement mapRow(ResultSet rs, int rowNum) throws SQLException {

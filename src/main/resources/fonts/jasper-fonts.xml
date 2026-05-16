@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fontFamilies>
+    <fontFamily name="Arial">
+        <normal><![CDATA[fonts/Arial-Regular.ttf]]></normal>
+        <bold><![CDATA[fonts/Arial-Bold.ttf]]></bold>
+        <italic><![CDATA[fonts/Arial-Italic.ttf]]></italic>
+        <boldItalic><![CDATA[fonts/Arial-BoldItalic.ttf]]></boldItalic>
+        <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+        <isPdfEmbedded>true</isPdfEmbedded>
+    </fontFamily>
+    <fontFamily name="Great Vibes">
+        <normal><![CDATA[fonts/GreatVibes-Regular.ttf]]></normal>
+        <bold><![CDATA[fonts/GreatVibes-Regular.ttf]]></bold>
+        <italic><![CDATA[fonts/GreatVibes-Regular.ttf]]></italic>
+        <boldItalic><![CDATA[fonts/GreatVibes-Regular.ttf]]></boldItalic>
+        <pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+        <isPdfEmbedded>true</isPdfEmbedded>
+    </fontFamily>
+</fontFamilies>

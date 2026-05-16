@@ -1,10 +1,16 @@
-package com.palmer.wfhbillingapi.model;
+package com.palmer.wfhbillingapi.model.catalog;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 
+/**
+ * Catalog entry for a merchandise item (e.g. casket, urn, vault).
+ * {@code pricingMode} controls whether the item is sold at a flat rate or per unit.
+ * {@code salesTaxable} determines whether the item's price is included in the sales tax calculation.
+ * Items are ordered by {@code sortOrder} to match the fixed positions on the billing statement.
+ */
 @Table("merchandise")
 public class Merchandise {
     @Id

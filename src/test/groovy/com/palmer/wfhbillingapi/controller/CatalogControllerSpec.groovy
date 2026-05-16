@@ -1,6 +1,11 @@
 package com.palmer.wfhbillingapi.controller
 
-import com.palmer.wfhbillingapi.model.*
+
+import com.palmer.wfhbillingapi.model.catalog.CashAdvance
+import com.palmer.wfhbillingapi.model.catalog.Merchandise
+import com.palmer.wfhbillingapi.model.catalog.Service
+import com.palmer.wfhbillingapi.model.catalog.ServicePackage
+import com.palmer.wfhbillingapi.model.catalog.SpecialCharge
 import com.palmer.wfhbillingapi.repository.*
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders

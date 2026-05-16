@@ -1,10 +1,10 @@
 package com.palmer.wfhbillingapi.controller;
 
-import com.palmer.wfhbillingapi.model.CashAdvance;
-import com.palmer.wfhbillingapi.model.Merchandise;
-import com.palmer.wfhbillingapi.model.Service;
-import com.palmer.wfhbillingapi.model.ServicePackage;
-import com.palmer.wfhbillingapi.model.SpecialCharge;
+import com.palmer.wfhbillingapi.model.catalog.CashAdvance;
+import com.palmer.wfhbillingapi.model.catalog.Merchandise;
+import com.palmer.wfhbillingapi.model.catalog.Service;
+import com.palmer.wfhbillingapi.model.catalog.ServicePackage;
+import com.palmer.wfhbillingapi.model.catalog.SpecialCharge;
 import com.palmer.wfhbillingapi.repository.CashAdvanceRepository;
 import com.palmer.wfhbillingapi.repository.MerchandiseRepository;
 import com.palmer.wfhbillingapi.repository.ServicePackageRepository;
@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Exposes read-only catalog endpoints used to populate the billing statement UI.
+ * All catalog data is seeded and managed separately; this API does not support writes.
+ */
 @RestController
 @RequestMapping("/catalog")
 public class CatalogController {
