@@ -2,6 +2,7 @@ package com.palmer.wfhbillingapi.controller;
 
 import com.palmer.wfhbillingapi.model.catalog.CashAdvance;
 import com.palmer.wfhbillingapi.model.catalog.Merchandise;
+import com.palmer.wfhbillingapi.model.catalog.PackageDetail;
 import com.palmer.wfhbillingapi.model.catalog.Service;
 import com.palmer.wfhbillingapi.model.catalog.ServicePackage;
 import com.palmer.wfhbillingapi.model.catalog.SpecialCharge;
@@ -13,8 +14,11 @@ import com.palmer.wfhbillingapi.repository.SpecialChargeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * Exposes read-only catalog endpoints used to populate the billing statement UI.
@@ -62,6 +66,17 @@ public class CatalogController {
     public Iterable<ServicePackage> getPackages() {
         LOGGER.debug("getPackages called");
         return servicePackageRepository.findAll();
+    }
+
+    @GetMapping("packages/{id}")
+    public PackageDetail getPackageById(@PathVariable Integer id) {
+        LOGGER.debug("getPackageById called");
+        ServicePackage servicePackage = servicePackageRepository.findById(id).orElseThrow();
+
+        List<Integer> serviceIds = servicePackageRepository.findServiceIdsByPackageId(id);
+
+        return new PackageDetail(servicePackage.getId(), servicePackage.getSortOrder(), servicePackage.getName(),
+                servicePackage.getDefaultCost(), serviceIds);
     }
 
     @GetMapping("special-charges")
