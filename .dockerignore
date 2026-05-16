@@ -1,0 +1,10 @@
+.gradle
+build/
+.git
+.github
+.idea
+*.iml
+key.json
+*.pdf
+logs/
+src/test/
