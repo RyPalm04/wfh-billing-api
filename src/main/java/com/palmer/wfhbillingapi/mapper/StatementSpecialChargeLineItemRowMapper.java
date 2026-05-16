@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Maps a {@code saved_statement_special_charges} result set row to a {@link StatementSpecialChargeLineItem}.
+ */
 public class StatementSpecialChargeLineItemRowMapper implements RowMapper<StatementSpecialChargeLineItem> {
 
     @Override

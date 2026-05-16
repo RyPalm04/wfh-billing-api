@@ -5,6 +5,11 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 
+/**
+ * Catalog entry for a pre-configured service package. A package bundles a set of services
+ * at a fixed cost. When a package is selected on a statement, services marked
+ * {@code includedInPackage} are excluded from the individual services subtotal.
+ */
 @Table("service_packages")
 public class ServicePackage {
     @Id

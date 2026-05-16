@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Exposes CRUD endpoints for saved billing statements and PDF generation.
+ */
 @RestController
 @RequestMapping("/statements")
 public class StatementController {

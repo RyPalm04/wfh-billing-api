@@ -5,6 +5,12 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 
+/**
+ * Catalog entry for a special charge (e.g. grave setup, cremation, mileage).
+ * Special charges are distinct from cash advances in that they are direct charges
+ * from the funeral home rather than third-party expenses.
+ * Items are ordered by {@code sortOrder} to match the fixed positions on the billing statement.
+ */
 @Table("special_charges")
 public class SpecialCharge {
     @Id

@@ -40,6 +40,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/**
+ * {@link PdfService} implementation using JasperReports to render billing statement PDFs.
+ *
+ * <p>The compiled {@code .jrxml} template is cached after the first call to avoid
+ * recompiling on every request. The field map is built by joining the saved statement's
+ * selected line items against the full ordered catalog — each catalog item maps to a
+ * fixed positional field name in the template, with {@code null} written for unselected items.
+ *
+ * <p>Financial totals are delegated to {@link StatementCalculator}.
+ */
 @Service
 public class PdfServiceImpl implements PdfService {
 
@@ -66,13 +76,6 @@ public class PdfServiceImpl implements PdfService {
         this.servicePackageRepository = servicePackageRepository;
     }
 
-    /**
-     * @param statementId
-     *
-     * @return
-     *
-     * @throws IOException
-     */
     @Override
     public PdfResult generatePdf(int statementId) throws IOException {
         SavedStatement stmt = savedStatementService.findById(statementId);

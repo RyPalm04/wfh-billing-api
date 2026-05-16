@@ -5,6 +5,12 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 
+/**
+ * Catalog entry for a funeral service (e.g. embalming, use of facilities, transfer of remains).
+ * {@code includedInPackage} indicates whether this service is covered by the selected package price
+ * and should therefore be excluded from the individual services subtotal.
+ * Items are ordered by {@code sortOrder} to match the fixed positions on the billing statement.
+ */
 @Table("services")
 public class Service {
     @Id

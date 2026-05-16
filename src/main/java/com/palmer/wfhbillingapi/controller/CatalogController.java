@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Exposes read-only catalog endpoints used to populate the billing statement UI.
+ * All catalog data is seeded and managed separately; this API does not support writes.
+ */
 @RestController
 @RequestMapping("/catalog")
 public class CatalogController {

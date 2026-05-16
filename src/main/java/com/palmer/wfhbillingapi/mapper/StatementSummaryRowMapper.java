@@ -8,18 +8,12 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Maps a {@code saved_statements} result set row to a {@link StatementSummary}.
+ * Reads only the five header columns needed for list views.
+ */
 public class StatementSummaryRowMapper implements RowMapper<StatementSummary> {
 
-    /**
-     * @param rs
-     *         the {@code ResultSet} to map (pre-initialized for the current row)
-     * @param rowNum
-     *         the number of the current row
-     *
-     * @return
-     *
-     * @throws SQLException
-     */
     @Override
     public StatementSummary mapRow(ResultSet rs, int rowNum) throws SQLException {
         if (rs.isBeforeFirst()) {

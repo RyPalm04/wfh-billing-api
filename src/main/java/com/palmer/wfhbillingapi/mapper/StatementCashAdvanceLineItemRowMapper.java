@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Maps a {@code saved_statement_cash_advances} result set row to a {@link StatementCashAdvanceLineItem}.
+ */
 public class StatementCashAdvanceLineItemRowMapper implements RowMapper<StatementCashAdvanceLineItem> {
 
     @Override
