@@ -48,6 +48,7 @@ jobs:
             DB_URL=${{ secrets.DB_URL }}
             DB_USER=${{ secrets.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            API_KEY=${{ secrets.API_KEY }}
 
       - name: Deploy to Cloud Run (Beta)
         if: github.ref == 'refs/heads/beta'
@@ -62,3 +63,4 @@ jobs:
             DB_URL=${{ secrets.DB_URL }}
             DB_USER=${{ secrets.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            API_KEY=${{ secrets.API_KEY }}

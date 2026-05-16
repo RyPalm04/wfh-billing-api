@@ -9,3 +9,6 @@ spring:
 
 server:
   port: ${PORT:18080}
+
+api:
+  key: ${API_KEY}
