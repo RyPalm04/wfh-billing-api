@@ -20,6 +20,11 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String xApiKey = request.getHeader("X-Api-Key");
 
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (xApiKey == null || !xApiKey.equals(API_KEY)) {
             response.setStatus(401);
             return;
