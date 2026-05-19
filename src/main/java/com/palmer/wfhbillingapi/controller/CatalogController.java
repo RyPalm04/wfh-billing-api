@@ -89,7 +89,11 @@ public class CatalogController {
     @GetMapping
     public CatalogBundle getCatalog() {
         LOGGER.debug("getCatalog called");
-        return new CatalogBundle((List<ServicePackage>) servicePackageRepository.findAll(),
+        List<PackageDetail> packages = ((List<ServicePackage>) servicePackageRepository.findAll()).stream()
+                .map(p -> new PackageDetail(p.getId(), p.getSortOrder(), p.getName(), p.getDefaultCost(),
+                        servicePackageRepository.findServiceIdsByPackageId(p.getId())))
+                .toList();
+        return new CatalogBundle(packages,
                 (List<Service>) serviceRepository.findAll(),
                 (List<Merchandise>) merchandiseRepository.findAll(),
                 (List<SpecialCharge>) specialChargeRepository.findAll(),
