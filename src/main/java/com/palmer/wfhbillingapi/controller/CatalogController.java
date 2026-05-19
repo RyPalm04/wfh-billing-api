@@ -1,6 +1,7 @@
 package com.palmer.wfhbillingapi.controller;
 
 import com.palmer.wfhbillingapi.model.catalog.CashAdvance;
+import com.palmer.wfhbillingapi.model.catalog.CatalogBundle;
 import com.palmer.wfhbillingapi.model.catalog.Merchandise;
 import com.palmer.wfhbillingapi.model.catalog.PackageDetail;
 import com.palmer.wfhbillingapi.model.catalog.Service;
@@ -83,5 +84,15 @@ public class CatalogController {
     public Iterable<SpecialCharge> getSpecialCharges() {
         LOGGER.debug("getSpecialCharges called");
         return specialChargeRepository.findAll();
+    }
+
+    @GetMapping
+    public CatalogBundle getCatalog() {
+        LOGGER.debug("getCatalog called");
+        return new CatalogBundle((List<ServicePackage>) servicePackageRepository.findAll(),
+                (List<Service>) serviceRepository.findAll(),
+                (List<Merchandise>) merchandiseRepository.findAll(),
+                (List<SpecialCharge>) specialChargeRepository.findAll(),
+                (List<CashAdvance>) cashAdvanceRepository.findAll());
     }
 }
