@@ -17,7 +17,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173", "https://wfh-billing-git-beta.vercel.app"));
+        config.setAllowedOriginPatterns(List.of("http://localhost:5173", "https://wfh-billing*.vercel.app"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 
