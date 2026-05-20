@@ -2,7 +2,8 @@ name: Build and Deploy to Cloud Run
 
 on:
   push:
-    branches: [master, beta]
+    tags:
+      - 'v*'
 
 env:
   PROJECT_ID: wfh-billing-496516
@@ -14,7 +15,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/master' && 'production' || 'beta' }}
+    environment: ${{ contains(github.ref, 'beta') && 'beta' || 'production' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -38,7 +39,7 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}
 
       - name: Deploy to Cloud Run (Production)
-        if: github.ref == 'refs/heads/master'
+        if: "!contains(github.ref, 'beta')"
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE }}
@@ -51,7 +52,7 @@ jobs:
             API_KEY=${{ secrets.API_KEY }}
 
       - name: Deploy to Cloud Run (Beta)
-        if: github.ref == 'refs/heads/beta'
+        if: contains(github.ref, 'beta')
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE }}
