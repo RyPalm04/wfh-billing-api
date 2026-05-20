@@ -13,33 +13,34 @@ env:
   REPOSITORY: wfh-billing-api
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment: ${{ contains(github.ref, 'beta') && 'beta' || 'production' }}
-
     steps:
       - uses: actions/checkout@v4
-
       - id: auth
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-
       - uses: google-github-actions/setup-gcloud@v2
-
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
-
-      - name: Build Docker image
+      - name: Build and Push Docker image
         run: |
           docker build -t ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }} .
-
-      - name: Push Docker image
-        run: |
           docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}
 
+  deploy-production:
+    needs: build
+    if: contains(github.ref, 'beta') == false
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - uses: google-github-actions/setup-gcloud@v2
       - name: Deploy to Cloud Run (Production)
-        if: "!contains(github.ref, 'beta')"
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE }}
@@ -51,8 +52,18 @@ jobs:
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             API_KEY=${{ secrets.API_KEY }}
 
+  deploy-beta:
+    needs: build
+    if: contains(github.ref, 'beta')
+    runs-on: ubuntu-latest
+    environment: beta
+    steps:
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - uses: google-github-actions/setup-gcloud@v2
       - name: Deploy to Cloud Run (Beta)
-        if: contains(github.ref, 'beta')
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE }}
