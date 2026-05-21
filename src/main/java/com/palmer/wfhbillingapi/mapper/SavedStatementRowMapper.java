@@ -1,10 +1,13 @@
 package com.palmer.wfhbillingapi.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palmer.wfhbillingapi.model.statement.SavedStatement;
 import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
+import com.palmer.wfhbillingapi.model.statement.StatementData;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -21,17 +24,10 @@ import java.util.List;
  */
 public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
 
-    private final List<StatementServiceLineItem> services;
-    private final List<StatementMerchandiseLineItem> merchandise;
-    private final List<StatementSpecialChargeLineItem> specialCharges;
-    private final List<StatementCashAdvanceLineItem> cashAdvances;
+    private final ObjectMapper objectMapper;
 
-    public SavedStatementRowMapper(List<StatementServiceLineItem> services, List<StatementMerchandiseLineItem> merchandise,
-                                   List<StatementSpecialChargeLineItem> specialCharges, List<StatementCashAdvanceLineItem> cashAdvances) {
-        this.services = services;
-        this.merchandise = merchandise;
-        this.specialCharges = specialCharges;
-        this.cashAdvances = cashAdvances;
+    public SavedStatementRowMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -45,6 +41,15 @@ public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
      */
     @Override
     public SavedStatement mapRow(ResultSet rs, int rowNum) throws SQLException {
+        String jsonData = rs.getString("data");
+        StatementData data;
+
+        try {
+            data = objectMapper.readValue(jsonData, StatementData.class);
+        } catch (JsonProcessingException e) {
+            throw new SQLException("Failed to deserialize statement data", e);
+        }
+
         return new SavedStatement(
                 rs.getInt("id"),
                 rs.getInt("control_number"),
@@ -57,10 +62,10 @@ public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
                 rs.getBigDecimal("sales_tax_rate"),
                 rs.getBigDecimal("payment"),
                 rs.getObject("saved_at", LocalDateTime.class),
-                services,
-                merchandise,
-                specialCharges,
-                cashAdvances
+                data.services(),
+                data.merchandise(),
+                data.specialCharges(),
+                data.cashAdvances()
         );
     }
 }

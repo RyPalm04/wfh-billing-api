@@ -7,5 +7,5 @@ import java.math.BigDecimal;
  * actual expense paid on the family's behalf. {@code provider} identifies the
  * third party (e.g. the name of the minister or newspaper).
  */
-public record StatementCashAdvanceLineItem(int cashAdvanceId, BigDecimal amount, String provider) {
+public record StatementCashAdvanceLineItem(int cashAdvanceId, String name, BigDecimal amount, String provider) {
 }
