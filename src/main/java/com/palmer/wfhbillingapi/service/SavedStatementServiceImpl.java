@@ -1,17 +1,12 @@
 package com.palmer.wfhbillingapi.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palmer.wfhbillingapi.dto.StatementRequest;
 import com.palmer.wfhbillingapi.mapper.SavedStatementRowMapper;
-import com.palmer.wfhbillingapi.mapper.StatementCashAdvanceLineItemRowMapper;
-import com.palmer.wfhbillingapi.mapper.StatementMerchandiseLineItemRowMapper;
-import com.palmer.wfhbillingapi.mapper.StatementServiceLineItemRowMapper;
-import com.palmer.wfhbillingapi.mapper.StatementSpecialChargeLineItemRowMapper;
 import com.palmer.wfhbillingapi.mapper.StatementSummaryRowMapper;
 import com.palmer.wfhbillingapi.model.statement.SavedStatement;
-import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
-import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
-import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
-import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
+import com.palmer.wfhbillingapi.model.statement.StatementData;
 import com.palmer.wfhbillingapi.model.statement.StatementSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,94 +41,33 @@ public class SavedStatementServiceImpl implements SavedStatementService {
 
     private static final String SELECT_STATEMENT = """
             SELECT id, control_number, services_for_name, date_of_death, place_of_death,
-                   service_date, reason_for_embalming, package_id, sales_tax_rate, payment, saved_at
+                   service_date, reason_for_embalming, package_id, sales_tax_rate, payment, saved_at, data
             FROM saved_statements
             WHERE id = ?
-            """;
-
-    private static final String SELECT_SERVICES = """
-            SELECT service_id, in_package
-            FROM saved_statement_services
-            WHERE statement_id = ?
-            """;
-
-    private static final String SELECT_MERCHANDISE = """
-            SELECT merchandise_id, price, description
-            FROM saved_statement_merchandise
-            WHERE statement_id = ?
-            """;
-
-    private static final String SELECT_SPECIAL_CHARGES = """
-            SELECT special_charge_id, price, description
-            FROM saved_statement_special_charges
-            WHERE statement_id = ?
-            """;
-
-    private static final String SELECT_CASH_ADVANCES = """
-            SELECT cash_advance_id, amount, provider
-            FROM saved_statement_cash_advances
-            WHERE statement_id = ?
             """;
 
     private static final String INSERT_STATEMENT = """
             INSERT INTO saved_statements
                 (control_number, services_for_name, date_of_death, place_of_death,
-                 service_date, reason_for_embalming, package_id, sales_tax_rate, payment)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """;
-
-    private static final String INSERT_SERVICE = """
-            INSERT INTO saved_statement_services (statement_id, service_id, in_package)
-            VALUES (?, ?, ?)
-            """;
-
-    private static final String INSERT_MERCHANDISE = """
-            INSERT INTO saved_statement_merchandise (statement_id, merchandise_id, price, description)
-            VALUES (?, ?, ?, ?)
-            """;
-
-    private static final String INSERT_SPECIAL_CHARGE = """
-            INSERT INTO saved_statement_special_charges (statement_id, special_charge_id, price, description)
-            VALUES (?, ?, ?, ?)
-            """;
-
-    private static final String INSERT_CASH_ADVANCE = """
-            INSERT INTO saved_statement_cash_advances (statement_id, cash_advance_id, amount, provider)
-            VALUES (?, ?, ?, ?)
+                 service_date, reason_for_embalming, package_id, sales_tax_rate, payment, data)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)
             """;
 
     private static final String UPDATE_STATEMENT = """
             UPDATE saved_statements
             SET services_for_name = ?, date_of_death = ?, place_of_death = ?,
                 service_date = ?, reason_for_embalming = ?, package_id = ?,
-                sales_tax_rate = ?, payment = ?, saved_at = CURRENT_TIMESTAMP
+                sales_tax_rate = ?, payment = ?, data = ?::jsonb, saved_at = CURRENT_TIMESTAMP
             WHERE id = ?
-            """;
-
-    private static final String DELETE_SERVICE = """
-            DELETE FROM saved_statement_services
-            WHERE statement_id = ?
-            """;
-
-    private static final String DELETE_MERCHANDISE = """
-            DELETE FROM saved_statement_merchandise
-            WHERE statement_id = ?
-            """;
-
-    private static final String DELETE_SPECIAL_CHARGE = """
-            DELETE FROM saved_statement_special_charges
-            WHERE statement_id = ?
-            """;
-
-    private static final String DELETE_CASH_ADVANCES = """
-            DELETE FROM saved_statement_cash_advances
-            WHERE statement_id = ?
             """;
 
     private static final String SELECT_MAX_CONTROL_NUMBER = "SELECT MAX(control_number) FROM saved_statements";
 
     @Autowired
     private JdbcTemplate wfhBillingJdbcTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     public List<StatementSummary> findAll() {
@@ -144,12 +78,8 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     @Override
     public SavedStatement findById(int id) {
         LOGGER.debug("Finding saved statement by id {}", id);
-        List<StatementServiceLineItem> statementServiceLineItems = wfhBillingJdbcTemplate.query(SELECT_SERVICES, new StatementServiceLineItemRowMapper(), id);
-        List<StatementMerchandiseLineItem> statementMerchandiseLineItems = wfhBillingJdbcTemplate.query(SELECT_MERCHANDISE, new StatementMerchandiseLineItemRowMapper(), id);
-        List<StatementSpecialChargeLineItem> statementSpecialChargeLineItems = wfhBillingJdbcTemplate.query(SELECT_SPECIAL_CHARGES, new StatementSpecialChargeLineItemRowMapper(), id);
-        List<StatementCashAdvanceLineItem> statementCashAdvanceLineItems = wfhBillingJdbcTemplate.query(SELECT_CASH_ADVANCES, new StatementCashAdvanceLineItemRowMapper(), id);
 
-        return wfhBillingJdbcTemplate.queryForObject(SELECT_STATEMENT, new SavedStatementRowMapper(statementServiceLineItems, statementMerchandiseLineItems, statementSpecialChargeLineItems, statementCashAdvanceLineItems), id);
+        return wfhBillingJdbcTemplate.queryForObject(SELECT_STATEMENT, new SavedStatementRowMapper(objectMapper), id);
     }
 
     @Transactional
@@ -174,6 +104,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
             }
             preparedStatement.setBigDecimal(8, request.salesTaxRate());
             preparedStatement.setBigDecimal(9, request.payment());
+            preparedStatement.setString(10, serializeData(request));
             return preparedStatement;
         }, keyHolder);
 
@@ -185,8 +116,6 @@ public class SavedStatementServiceImpl implements SavedStatementService {
         }
 
         int savedStatementId = key.intValue();
-
-        insertLineItems(request, savedStatementId);
 
         return findById(savedStatementId);
     }
@@ -211,47 +140,27 @@ public class SavedStatementServiceImpl implements SavedStatementService {
                 request.packageId(),
                 request.salesTaxRate(),
                 request.payment(),
+                serializeData(request),
                 id
         );
-
-        wfhBillingJdbcTemplate.update(DELETE_SERVICE, id);
-        wfhBillingJdbcTemplate.update(DELETE_MERCHANDISE, id);
-        wfhBillingJdbcTemplate.update(DELETE_SPECIAL_CHARGE, id);
-        wfhBillingJdbcTemplate.update(DELETE_CASH_ADVANCES, id);
-
-        insertLineItems(request, id);
 
         return findById(id);
     }
 
-    private void insertLineItems(StatementRequest request, int savedStatementId) {
-        LOGGER.debug("Inserting line items for saved statement {}", request);
-        wfhBillingJdbcTemplate.batchUpdate(INSERT_SERVICE, request.services(), request.services().size(), (preparedStatement, item) -> {
-            preparedStatement.setInt(1, savedStatementId);
-            preparedStatement.setInt(2, item.serviceId());
-            preparedStatement.setBoolean(3, item.inPackage());
-        });
+    private String serializeData(StatementRequest request) {
+        try {
+            StatementData data = new StatementData(
+                    request.services(),
+                    request.merchandise(),
+                    request.specialCharges(),
+                    request.cashAdvances()
+            );
 
-        wfhBillingJdbcTemplate.batchUpdate(INSERT_MERCHANDISE, request.merchandise(), request.merchandise().size(), (preparedStatement, item) -> {
-            preparedStatement.setInt(1, savedStatementId);
-            preparedStatement.setInt(2, item.merchandiseId());
-            preparedStatement.setBigDecimal(3, item.price());
-            preparedStatement.setString(4, item.description());
-        });
-
-        wfhBillingJdbcTemplate.batchUpdate(INSERT_CASH_ADVANCE, request.cashAdvances(), request.cashAdvances().size(), (preparedStatement, item) -> {
-            preparedStatement.setInt(1, savedStatementId);
-            preparedStatement.setInt(2, item.cashAdvanceId());
-            preparedStatement.setBigDecimal(3, item.amount());
-            preparedStatement.setString(4, item.provider());
-        });
-
-        wfhBillingJdbcTemplate.batchUpdate(INSERT_SPECIAL_CHARGE, request.specialCharges(), request.specialCharges().size(), (preparedStatement, item) -> {
-            preparedStatement.setInt(1, savedStatementId);
-            preparedStatement.setInt(2, item.specialChargeId());
-            preparedStatement.setBigDecimal(3, item.price());
-            preparedStatement.setString(4, item.description());
-        });
+            return objectMapper.writeValueAsString(data);
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Could not serialize statement data", e);
+            throw new IllegalStateException("Could not serialize statement data: ", e);
+        }
     }
 
     @Override

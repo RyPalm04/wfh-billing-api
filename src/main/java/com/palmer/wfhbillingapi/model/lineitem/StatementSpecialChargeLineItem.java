@@ -7,5 +7,5 @@ import java.math.BigDecimal;
  * effective price at the time the statement was saved. {@code description} holds
  * the user-entered detail for charges that require one (e.g. mileage notes).
  */
-public record StatementSpecialChargeLineItem(int specialChargeId, BigDecimal price, String description) {
+public record StatementSpecialChargeLineItem(int specialChargeId, String name, BigDecimal price, String description) {
 }
