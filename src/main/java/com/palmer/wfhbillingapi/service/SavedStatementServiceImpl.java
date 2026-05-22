@@ -40,10 +40,12 @@ public class SavedStatementServiceImpl implements SavedStatementService {
             """;
 
     private static final String SELECT_STATEMENT = """
-            SELECT id, control_number, services_for_name, date_of_death, place_of_death,
-                   service_date, reason_for_embalming, package_id, sales_tax_rate, payment, saved_at, data
-            FROM saved_statements
-            WHERE id = ?
+            SELECT ss.id, ss.control_number, ss.services_for_name, ss.date_of_death, ss.place_of_death,
+                   ss.service_date, ss.reason_for_embalming, ss.package_id, ss.sales_tax_rate, ss.payment,
+                   ss.saved_at, ss.data, sp.legacy_package AS current_legacy_package
+            FROM saved_statements ss
+            LEFT JOIN service_packages sp ON ss.package_id = sp.id
+            WHERE ss.id = ?
             """;
 
     private static final String INSERT_STATEMENT = """
@@ -99,8 +101,8 @@ public class SavedStatementServiceImpl implements SavedStatementService {
             preparedStatement.setString(4, request.placeOfDeath());
             preparedStatement.setObject(5, request.serviceDate());
             preparedStatement.setString(6, request.reasonForEmbalming());
-            if (request.packageId() != null) {
-                preparedStatement.setInt(7, request.packageId());
+            if (request.servicePackage() != null) {
+                preparedStatement.setInt(7, request.servicePackage().getId());
             } else {
                 preparedStatement.setNull(7, Types.INTEGER);
             }
@@ -139,7 +141,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
                 request.placeOfDeath(),
                 request.serviceDate(),
                 request.reasonForEmbalming(),
-                request.packageId(),
+                request.servicePackage() != null ? request.servicePackage().getId() : null,
                 request.salesTaxRate(),
                 request.payment(),
                 serializeData(request),
@@ -156,8 +158,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
                     request.merchandise(),
                     request.specialCharges(),
                     request.cashAdvances(),
-                    request.packageName(),
-                    request.packagePrice()
+                    request.servicePackage()
             );
 
             return objectMapper.writeValueAsString(data);
@@ -185,7 +186,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     public void delete(int id) {
         LOGGER.debug("Deleting saved statement {}", id);
 
-        int rows  = wfhBillingJdbcTemplate.update(DELETE_STATEMENT, id);
+        int rows = wfhBillingJdbcTemplate.update(DELETE_STATEMENT, id);
 
         if (rows != 1) {
             LOGGER.error("Statement requested to be deleted not found. id={}", id);

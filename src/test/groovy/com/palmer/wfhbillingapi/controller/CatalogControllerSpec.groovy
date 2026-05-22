@@ -1,17 +1,14 @@
 package com.palmer.wfhbillingapi.controller
 
-
-import com.palmer.wfhbillingapi.model.catalog.CashAdvance
-import com.palmer.wfhbillingapi.model.catalog.Merchandise
-import com.palmer.wfhbillingapi.model.catalog.Service
-import com.palmer.wfhbillingapi.model.catalog.ServicePackage
-import com.palmer.wfhbillingapi.model.catalog.SpecialCharge
+import com.palmer.wfhbillingapi.model.catalog.*
 import com.palmer.wfhbillingapi.repository.*
+import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import spock.lang.Specification
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 class CatalogControllerSpec extends Specification {
@@ -70,7 +67,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog/packages returns 200 with results"() {
         given:
-        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G)]
+        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G, false)]
 
         when:
         def result = mockMvc.perform(get("/catalog/packages"))
@@ -92,7 +89,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog returns 200 with all catalog items"() {
         given:
-        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G)]
+        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G, false)]
         servicePackageRepository.findServiceIdsByPackageId(1) >> [1, 2, 3]
         cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening")]
         merchandiseRepository.findAll() >> [new Merchandise(1, 1, "Casket or (alternative container)", null, true, true, Merchandise.PricingMode.FLAT)]
@@ -104,5 +101,42 @@ class CatalogControllerSpec extends Specification {
 
         then:
         result.andExpect(status().isOk())
+    }
+
+    def "GET /catalog/packages?includeLegacy=false excludes legacy packages"() {
+        given:
+        servicePackageRepository.findAll() >> [
+                new ServicePackage(1, 1, "Traditional One", 5995.00G, false),
+                new ServicePackage(2, 2, "Legacy Package", 3000.00G, true)
+        ]
+
+        when:
+        def result = mockMvc.perform(get("/catalog/packages")
+                .param("includeLegacy", "false")
+                .accept(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpectAll(status().isOk(),
+                jsonPath('$').isArray(),
+                jsonPath('$.length()').value(1),
+                jsonPath('$[0].name').value("Traditional One"))
+    }
+
+    def "GET /catalog/packages?includeLegacy=true returns all packages including legacy"() {
+        given:
+        servicePackageRepository.findAll() >> [
+                new ServicePackage(1, 1, "Traditional One", 5995.00G, false),
+                new ServicePackage(2, 2, "Legacy Package", 3000.00G, true)
+        ]
+
+        when:
+        def result = mockMvc.perform(get("/catalog/packages")
+                .param("includeLegacy", "true")
+                .accept(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpectAll(status().isOk(),
+                jsonPath('$').isArray(),
+                jsonPath('$.length()').value(2))
     }
 }

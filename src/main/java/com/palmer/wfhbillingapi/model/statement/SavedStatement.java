@@ -1,5 +1,6 @@
 package com.palmer.wfhbillingapi.model.statement;
 
+import com.palmer.wfhbillingapi.model.catalog.ServicePackage;
 import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
@@ -18,8 +19,7 @@ import java.util.List;
  */
 public record SavedStatement(int id, int controlNumber, String servicesForName, LocalDate dateOfDeath,
                              String placeOfDeath, LocalDate serviceDate, String reasonForEmbalming, Integer packageId,
-                             BigDecimal salesTaxRate, BigDecimal payment, LocalDateTime savedAt,
-                             String packageName, BigDecimal packagePrice,
+                             BigDecimal salesTaxRate, BigDecimal payment, LocalDateTime savedAt, ServicePackage servicePackage,
                              List<StatementServiceLineItem> services, List<StatementMerchandiseLineItem> merchandise,
                              List<StatementSpecialChargeLineItem> specialCharges,
                              List<StatementCashAdvanceLineItem> cashAdvances) {
