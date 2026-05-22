@@ -51,7 +51,7 @@ class StatementControllerSpec extends Specification {
         savedStatementService.findById(1) >> new SavedStatement(
                 1, 1, "Test Person", null, "Memphis, TN",
                 LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G,
-                LocalDateTime.now(), [], [], [], []
+                LocalDateTime.now(), null, null, [], [], [], []
         )
 
         when:
@@ -65,11 +65,11 @@ class StatementControllerSpec extends Specification {
     def "POST /statements returns 201 with created statement"() {
         given:
         def request = new StatementRequest(1, "Test Person", null, "Memphis, TN",
-                LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G, [], [], [], [])
+                LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G, null, null, [], [], [], [])
         savedStatementService.insertSavedStatement(_) >> new SavedStatement(
                 1, 1, "Test Person", null, "Memphis, TN",
                 LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G,
-                LocalDateTime.now(), [], [], [], []
+                LocalDateTime.now(), null, null, [], [], [], []
         )
 
         when:
@@ -86,11 +86,11 @@ class StatementControllerSpec extends Specification {
     def "PUT /statements/{id} returns 200 with updated statement"() {
         given:
         def request = new StatementRequest(1, "Updated Person", null, "Memphis, TN",
-                LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5500.00G, [], [], [], [])
+                LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5500.00G, null, null, [], [], [], [])
         savedStatementService.update(1, _) >> new SavedStatement(
                 1, 1, "Updated Person", null, "Memphis, TN",
                 LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5500.00G,
-                LocalDateTime.now(), [], [], [], []
+                LocalDateTime.now(), null, null, [], [], [], []
         )
 
         when:
@@ -136,5 +136,43 @@ class StatementControllerSpec extends Specification {
         then:
         result.andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE))
+    }
+
+    def "POST /statements with package name and price returns them in response"() {
+        given:
+        def request = new StatementRequest(1, "Test Person", null, "Memphis, TN",
+                LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G, "Traditional Two", 7495.00G, [], [], [], [])
+
+        savedStatementService.insertSavedStatement(_) >> new SavedStatement(
+                1, 1, "Test Person", null, "Memphis, TN", LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G,
+                LocalDateTime.now(), "Traditional Two", 7495.00G, [], [], [], []
+        )
+
+        when:
+        def result = mockMvc.perform(MockMvcRequestBuilders.post("/statements")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+
+        then:
+        result.andExpectAll(status().isCreated(),
+                jsonPath('$.packageName').value("Traditional Two"),
+                jsonPath('$.packagePrice').value(7495.0))
+    }
+
+    def "GET /statements/{id} returns packageName and packagePrice"() {
+        given:
+        savedStatementService.findById(1) >> new SavedStatement(
+                1, 1, "Test Person", null, "Memphis, TN", LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G,
+                LocalDateTime.now(), "Traditional Two", 7495.00G, [], [], [], []
+        )
+
+        when:
+        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements/1").accept(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpectAll(status().isOk(),
+                jsonPath('$.packageName').value("Traditional Two"),
+                jsonPath('$.packagePrice').value(7495.0))
     }
 }

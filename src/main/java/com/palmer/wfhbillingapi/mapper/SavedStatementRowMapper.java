@@ -62,6 +62,8 @@ public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
                 rs.getBigDecimal("sales_tax_rate"),
                 rs.getBigDecimal("payment"),
                 rs.getObject("saved_at", LocalDateTime.class),
+                data.packageName(),
+                data.packagePrice(),
                 data.services(),
                 data.merchandise(),
                 data.specialCharges(),

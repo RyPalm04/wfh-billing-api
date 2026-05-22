@@ -155,7 +155,9 @@ public class SavedStatementServiceImpl implements SavedStatementService {
                     request.services(),
                     request.merchandise(),
                     request.specialCharges(),
-                    request.cashAdvances()
+                    request.cashAdvances(),
+                    request.packageName(),
+                    request.packagePrice()
             );
 
             return objectMapper.writeValueAsString(data);
