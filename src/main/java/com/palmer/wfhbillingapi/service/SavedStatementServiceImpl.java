@@ -61,6 +61,8 @@ public class SavedStatementServiceImpl implements SavedStatementService {
             WHERE id = ?
             """;
 
+    private static final String DELETE_STATEMENT = "DELETE FROM saved_statements where id = ?";
+
     private static final String SELECT_MAX_CONTROL_NUMBER = "SELECT MAX(control_number) FROM saved_statements";
 
     @Autowired
@@ -175,5 +177,17 @@ public class SavedStatementServiceImpl implements SavedStatementService {
 
         LOGGER.debug("Next control number is {}", max + 1);
         return max + 1;
+    }
+
+    @Override
+    public void delete(int id) {
+        LOGGER.debug("Deleting saved statement {}", id);
+
+        int rows  = wfhBillingJdbcTemplate.update(DELETE_STATEMENT, id);
+
+        if (rows != 1) {
+            LOGGER.error("Statement requested to be deleted not found. id={}", id);
+            throw new IllegalStateException("Statement not found: " + id);
+        }
     }
 }
