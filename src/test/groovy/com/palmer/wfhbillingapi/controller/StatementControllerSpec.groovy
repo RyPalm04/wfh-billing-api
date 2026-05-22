@@ -3,6 +3,7 @@ package com.palmer.wfhbillingapi.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.palmer.wfhbillingapi.dto.StatementRequest
+import com.palmer.wfhbillingapi.model.statement.PdfResult
 import com.palmer.wfhbillingapi.model.statement.SavedStatement
 import com.palmer.wfhbillingapi.model.statement.StatementSummary
 import com.palmer.wfhbillingapi.service.PdfService
@@ -17,9 +18,7 @@ import spock.lang.Specification
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 class StatementControllerSpec extends Specification {
 
@@ -39,7 +38,7 @@ class StatementControllerSpec extends Specification {
         ]
 
         when:
-        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements"))
+        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements").accept(MediaType.APPLICATION_JSON))
 
         then:
         result.andExpect(status().isOk())
@@ -56,7 +55,7 @@ class StatementControllerSpec extends Specification {
         )
 
         when:
-        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements/1"))
+        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements/1").accept(MediaType.APPLICATION_JSON))
 
         then:
         result.andExpect(status().isOk())
@@ -75,6 +74,7 @@ class StatementControllerSpec extends Specification {
 
         when:
         def result = mockMvc.perform(MockMvcRequestBuilders.post("/statements")
+                .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
 
@@ -95,6 +95,7 @@ class StatementControllerSpec extends Specification {
 
         when:
         def result = mockMvc.perform(MockMvcRequestBuilders.put("/statements/1")
+                .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
 
@@ -103,12 +104,22 @@ class StatementControllerSpec extends Specification {
                 .andExpect(jsonPath('$.servicesForName').value("Updated Person"))
     }
 
+    def "DELETE /statements/{id} returns 204"() {
+        when:
+        def result = mockMvc.perform(MockMvcRequestBuilders.delete("/statements/1"))
+
+        then:
+        1 * savedStatementService.delete(1)
+        result.andExpect(status().isNoContent())
+    }
+
+
     def "GET /statements/next-control-number returns 200 with next number"() {
         given:
         savedStatementService.nextControlNumber() >> 5
 
         when:
-        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements/next-control-number"))
+        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements/next-control-number").accept(MediaType.APPLICATION_JSON))
 
         then:
         result.andExpect(status().isOk())
@@ -117,10 +128,10 @@ class StatementControllerSpec extends Specification {
 
     def "GET /statements/{id}/pdf returns 200 with PDF bytes"() {
         given:
-        pdfService.generatePdf(1) >> new byte[1]
+        pdfService.generatePdf(1) >> new PdfResult(new byte[1], 1)
 
         when:
-        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements/1/pdf"))
+        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements/1/pdf").accept(MediaType.APPLICATION_JSON))
 
         then:
         result.andExpect(status().isOk())
