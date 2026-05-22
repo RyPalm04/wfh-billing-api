@@ -1,0 +1,1 @@
+ALTER TABLE service_packages ADD COLUMN IF NOT EXISTS legacy_package boolean DEFAULT(false);

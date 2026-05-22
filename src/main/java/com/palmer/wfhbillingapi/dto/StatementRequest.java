@@ -1,5 +1,6 @@
 package com.palmer.wfhbillingapi.dto;
 
+import com.palmer.wfhbillingapi.model.catalog.ServicePackage;
 import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
@@ -14,8 +15,8 @@ import java.util.List;
  * but omits {@code id} and {@code savedAt}, which are assigned by the server on write.
  */
 public record StatementRequest(int controlNumber, String servicesForName, LocalDate dateOfDeath, String placeOfDeath,
-                               LocalDate serviceDate, String reasonForEmbalming, Integer packageId, BigDecimal salesTaxRate,
-                               BigDecimal payment, String packageName, BigDecimal packagePrice,
-                               List<StatementServiceLineItem> services, List<StatementMerchandiseLineItem> merchandise,
-                               List<StatementSpecialChargeLineItem> specialCharges, List<StatementCashAdvanceLineItem> cashAdvances) {
+                               LocalDate serviceDate, String reasonForEmbalming, BigDecimal salesTaxRate, BigDecimal payment,
+                               ServicePackage servicePackage, List<StatementServiceLineItem> services,
+                               List<StatementMerchandiseLineItem> merchandise, List<StatementSpecialChargeLineItem> specialCharges,
+                               List<StatementCashAdvanceLineItem> cashAdvances) {
 }

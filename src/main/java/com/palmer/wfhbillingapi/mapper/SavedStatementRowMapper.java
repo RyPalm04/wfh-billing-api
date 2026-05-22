@@ -2,6 +2,7 @@ package com.palmer.wfhbillingapi.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.palmer.wfhbillingapi.model.catalog.ServicePackage;
 import com.palmer.wfhbillingapi.model.statement.SavedStatement;
 import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
@@ -50,6 +51,11 @@ public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
             throw new SQLException("Failed to deserialize statement data", e);
         }
 
+        ServicePackage servicePackage = data.servicePackage();
+        Boolean currentLegacy = (Boolean) rs.getObject("current_legacy_package");
+        if (servicePackage != null && currentLegacy != null) {
+            servicePackage = new ServicePackage(servicePackage.getId(), servicePackage.getSortOrder(), servicePackage.getName(), servicePackage.getDefaultCost(), currentLegacy);
+        }
         return new SavedStatement(
                 rs.getInt("id"),
                 rs.getInt("control_number"),
@@ -62,8 +68,7 @@ public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
                 rs.getBigDecimal("sales_tax_rate"),
                 rs.getBigDecimal("payment"),
                 rs.getObject("saved_at", LocalDateTime.class),
-                data.packageName(),
-                data.packagePrice(),
+                servicePackage,
                 data.services(),
                 data.merchandise(),
                 data.specialCharges(),

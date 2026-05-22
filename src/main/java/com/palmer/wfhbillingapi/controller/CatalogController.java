@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -64,9 +65,11 @@ public class CatalogController {
     }
 
     @GetMapping("packages")
-    public Iterable<ServicePackage> getPackages() {
-        LOGGER.debug("getPackages called");
-        return servicePackageRepository.findAll();
+    public Iterable<ServicePackage> getPackages(@RequestParam(defaultValue = "false") boolean includeLegacy) {
+        LOGGER.debug("getPackages called, includeLegacy = {}", includeLegacy);
+        return ((List<ServicePackage>) servicePackageRepository.findAll()).stream()
+                .filter(p -> includeLegacy || !p.isLegacyPackage())
+                .toList();
     }
 
     @GetMapping("packages/{id}")
@@ -89,7 +92,7 @@ public class CatalogController {
     @GetMapping
     public CatalogBundle getCatalog() {
         LOGGER.debug("getCatalog called");
-        List<PackageDetail> packages = ((List<ServicePackage>) servicePackageRepository.findAll()).stream()
+        List<PackageDetail> packages = ((List<ServicePackage>) getPackages(false)).stream()
                 .map(p -> new PackageDetail(p.getId(), p.getSortOrder(), p.getName(), p.getDefaultCost(),
                         servicePackageRepository.findServiceIdsByPackageId(p.getId())))
                 .toList();
