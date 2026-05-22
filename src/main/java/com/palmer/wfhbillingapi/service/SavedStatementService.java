@@ -44,4 +44,13 @@ public interface SavedStatementService {
      * Returns the next available control number (MAX + 1), or 1 if no statements exist.
      */
     int nextControlNumber();
+
+    /**
+     * Deletes a statement by ID.
+     *
+     * @throws IllegalStateException if not found.
+     *
+     * @param id the database primary key of the statement to delete
+     */
+    void delete(int id);
 }
