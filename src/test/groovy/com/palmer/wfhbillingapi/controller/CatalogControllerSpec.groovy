@@ -37,7 +37,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog/cash-advances returns 200 with results"() {
         given:
-        cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening", true)]
+        cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening")]
 
         when:
         def result = mockMvc.perform(get("/catalog/cash-advances"))
@@ -90,17 +90,19 @@ class CatalogControllerSpec extends Specification {
         result.andExpect(status().isOk())
     }
 
-    def "GET /catalog returns 200 wit hall catalog items"() {
+    def "GET /catalog returns 200 with all catalog items"() {
         given:
+        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G)]
+        servicePackageRepository.findServiceIdsByPackageId(1) >> [1, 2, 3]
         cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening")]
         merchandiseRepository.findAll() >> [new Merchandise(1, 1, "Casket or (alternative container)", null, true, true, Merchandise.PricingMode.FLAT)]
         serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, true)]
         specialChargeRepository.findAll() >> [new SpecialCharge(1, 1, "Grave Service Setup/Delivery", null, true)]
 
         when:
-        def result = mockMvc.perform(get"/catalog")
+        def result = mockMvc.perform(get("/catalog"))
 
         then:
-        result.andExpect {status().isOk()}
+        result.andExpect(status().isOk())
     }
 }
