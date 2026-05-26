@@ -16,6 +16,7 @@ import com.palmer.wfhbillingapi.repository.MerchandiseRepository;
 import com.palmer.wfhbillingapi.repository.ServicePackageRepository;
 import com.palmer.wfhbillingapi.repository.ServiceRepository;
 import com.palmer.wfhbillingapi.repository.SpecialChargeRepository;
+import jakarta.annotation.Nonnull;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -170,7 +172,9 @@ public class PdfServiceImpl implements PdfService {
             StatementMerchandiseLineItem item = savedMerch.get(merch.getId());
             m.put(merchPriceFields[i], item != null ? toDouble(item.price()) : null);
             if (merchDescFields[i] != null) {
-                m.put(merchDescFields[i], item != null ? Objects.requireNonNullElse(item.description(), "") : "");
+                String description = getMerchandiseDescription(item, merch);
+
+                m.put(merchDescFields[i], description);
             }
         }
 
@@ -248,6 +252,25 @@ public class PdfServiceImpl implements PdfService {
                 servicePrices, packageCost, taxableMerchandiseIds).doubleValue());
 
         return m;
+    }
+
+    private static String getMerchandiseDescription(StatementMerchandiseLineItem item, Merchandise merch) {
+        String description;
+
+        if (item == null) {
+            return "";
+        }
+
+        if (merch.getPricingMode() == Merchandise.PricingMode.PER_UNIT &&
+            merch.getDefaultCost() != null &&
+            merch.getDefaultCost().compareTo(BigDecimal.ZERO) > 0) {
+            int quantity = item.price().divide(merch.getDefaultCost(), 2, RoundingMode.HALF_UP).intValue();
+            description = String.format("%d at $%s/piece", quantity, merch.getDefaultCost().toPlainString());
+        } else {
+            description = Objects.requireNonNullElse(item.description(), "");
+        }
+
+        return description;
     }
 
     private static Double toDouble(BigDecimal bigDecimal) {
