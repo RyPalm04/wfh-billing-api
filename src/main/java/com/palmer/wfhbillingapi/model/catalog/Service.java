@@ -18,13 +18,15 @@ public class Service {
     private final String name;
     private final int sortOrder;
     private final BigDecimal defaultCost;
+    private final boolean requiresDescription;
     private final boolean includedInPackage;
 
-    public Service(int id, String name, int sortOrder, BigDecimal defaultCost, boolean includedInPackage) {
+    public Service(int id, String name, int sortOrder, BigDecimal defaultCost, boolean requiresDescription, boolean includedInPackage) {
         this.id = id;
         this.name = name;
         this.sortOrder = sortOrder;
         this.defaultCost = defaultCost;
+        this.requiresDescription = requiresDescription;
         this.includedInPackage = includedInPackage;
     }
 
@@ -42,6 +44,10 @@ public class Service {
 
     public BigDecimal getDefaultCost() {
         return defaultCost;
+    }
+
+    public boolean isRequiresDescription() {
+        return requiresDescription;
     }
 
     public boolean isIncludedInPackage() {

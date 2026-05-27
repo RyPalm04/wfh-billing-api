@@ -139,6 +139,13 @@ public class PdfServiceImpl implements PdfService {
                 "serviceCarPrice", "transferOfRemainsPrice", "otherAPrice", "otherBPrice"
         };
 
+        String[] serviceDescFields = {
+                null, null, null,
+                null, null, null,
+                null, null, null,
+                null, null, "otherADescription", "otherBDescription"
+        };
+
         Map<Integer, StatementServiceLineItem> savedServices = stmt.services().stream()
                 .collect(Collectors.toMap(StatementServiceLineItem::serviceId, s -> s));
         Map<Integer, StatementMerchandiseLineItem> savedMerch = stmt.merchandise().stream()
@@ -150,7 +157,14 @@ public class PdfServiceImpl implements PdfService {
 
         for (int i = 0; i < Math.min(serviceFields.length, services.size()); i++) {
             com.palmer.wfhbillingapi.model.catalog.Service svc = services.get(i);
-            m.put(serviceFields[i], savedServices.containsKey(svc.getId()) ? toDouble(svc.getDefaultCost()) : null);
+            StatementServiceLineItem item = savedServices.get(svc.getId());
+            double itemPrice = item != null && item.price() != null ? toDouble(item.price()) :
+                    svc.getDefaultCost() != null ? toDouble(svc.getDefaultCost()) :
+                    0.0;
+            m.put(serviceFields[i], savedServices.containsKey(svc.getId()) ? itemPrice : null);
+            if (serviceDescFields[i] != null) {
+                m.put(serviceDescFields[i], item != null ? Objects.requireNonNullElse(item.description(), "") : "");
+            }
         }
 
         String[] merchPriceFields = {
@@ -224,6 +238,7 @@ public class PdfServiceImpl implements PdfService {
         }
 
         Map<Integer, BigDecimal> servicePrices = services.stream()
+                .filter(service -> service.getDefaultCost() != null)
                 .collect(Collectors.toMap(com.palmer.wfhbillingapi.model.catalog.Service::getId,
                         com.palmer.wfhbillingapi.model.catalog.Service::getDefaultCost));
         Set<Integer> taxableMerchandiseIds = merchandise.stream()
