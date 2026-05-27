@@ -2,6 +2,7 @@ package com.palmer.wfhbillingapi.model.statement;
 
 import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
+import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
 
 import java.math.BigDecimal;
@@ -20,7 +21,7 @@ public final class StatementCalculator {
         BigDecimal pkg = packageCost != null ? packageCost : BigDecimal.ZERO;
         BigDecimal individual = safeAdd(statement.services().stream()
                 .filter(s -> !s.inPackage())
-                .map(s -> servicePrices.getOrDefault(s.serviceId(), BigDecimal.ZERO))
+                .map(s -> servicePrices.getOrDefault(s.serviceId(), s.price()))
                 .toArray(BigDecimal[]::new));
         return safeAdd(pkg, individual).setScale(2, RoundingMode.HALF_UP);
     }

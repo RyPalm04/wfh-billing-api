@@ -33,6 +33,8 @@
     <field name="transferOfRemainsPrice" class="java.lang.Double"/>
     <field name="otherAPrice" class="java.lang.Double"/>
     <field name="otherBPrice" class="java.lang.Double"/>
+    <field name="otherADescription" class="java.lang.String"/>
+    <field name="otherBDescription" class="java.lang.String"/>
     <field name="casketPrice" class="java.lang.Double"/>
     <field name="casketDescription" class="java.lang.String"/>
     <field name="urnPrice" class="java.lang.Double"/>
@@ -637,6 +639,34 @@ BROOKFIELD, MISSOURI 64628
                         <font fontName="Arial" size="8" isBold="false"/>
                     </textElement>
                     <textFieldExpression><![CDATA[$F{otherBPrice}]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont" isBlankWhenNull="true">
+                    <reportElement x="80" y="287" width="65" height="10" uuid="96704389-a3e4-4b58-ab2b-91df6f040124"/>
+                    <box>
+                        <pen lineWidth="2.0"/>
+                        <topPen lineWidth="0.0"/>
+                        <leftPen lineWidth="0.0"/>
+                        <bottomPen lineWidth="0.0"/>
+                        <rightPen lineWidth="0.0"/>
+                    </box>
+                    <textElement>
+                        <font fontName="Arial" size="7" isBold="false" isItalic="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{otherBDescription}]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont" isBlankWhenNull="true">
+                    <reportElement x="80" y="277" width="65" height="10" uuid="d739ec2a-c103-426c-8d4c-f88b1cf50861"/>
+                    <box>
+                        <pen lineWidth="2.0"/>
+                        <topPen lineWidth="0.0"/>
+                        <leftPen lineWidth="0.0"/>
+                        <bottomPen lineWidth="0.0"/>
+                        <rightPen lineWidth="0.0"/>
+                    </box>
+                    <textElement>
+                        <font fontName="Arial" size="7" isBold="false" isItalic="true"/>
+                    </textElement>
+                    <textFieldExpression><![CDATA[$F{otherADescription}]]></textFieldExpression>
                 </textField>
                 <staticText>
                     <reportElement x="3" y="308" width="170" height="11" uuid="d36094e0-fe5e-4b1c-90fb-2dd0e33c9821">

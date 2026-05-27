@@ -56,7 +56,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog/services returns 200 with results"() {
         given:
-        serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, true)]
+        serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, false, true)]
 
         when:
         def result = mockMvc.perform(get("/catalog/services"))
@@ -93,7 +93,7 @@ class CatalogControllerSpec extends Specification {
         servicePackageRepository.findServiceIdsByPackageId(1) >> [1, 2, 3]
         cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening")]
         merchandiseRepository.findAll() >> [new Merchandise(1, 1, "Casket or (alternative container)", null, true, true, Merchandise.PricingMode.FLAT)]
-        serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, true)]
+        serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, false, true)]
         specialChargeRepository.findAll() >> [new SpecialCharge(1, 1, "Grave Service Setup/Delivery", null, true)]
 
         when:

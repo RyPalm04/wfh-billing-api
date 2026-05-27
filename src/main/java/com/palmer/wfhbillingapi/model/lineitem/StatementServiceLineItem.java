@@ -7,5 +7,5 @@ import java.math.BigDecimal;
  * whether the service's cost is covered by the statement's selected package price,
  * in which case it is excluded from the individual services subtotal.
  */
-public record StatementServiceLineItem(int serviceId, String name, BigDecimal price, boolean inPackage) {
+public record StatementServiceLineItem(int serviceId, String name, BigDecimal price, String description, boolean inPackage) {
 }
