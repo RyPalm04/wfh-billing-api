@@ -243,7 +243,8 @@ public class PdfServiceImpl implements PdfService {
                 StatementCalculator.cashAdvancesTotal(stmt).doubleValue());
         m.put("salesTax", StatementCalculator.salesTax(stmt,
                 taxableMerchandiseIds).doubleValue());
-        m.put("salesTaxLabel", "Sales Tax " + stmt.salesTaxRate().multiply(new
+        BigDecimal taxRate = stmt.salesTaxRate() != null ? stmt.salesTaxRate() : BigDecimal.ZERO;
+        m.put("salesTaxLabel", "Sales Tax " + taxRate.multiply(new
                 BigDecimal("100")).stripTrailingZeros().toPlainString() + "%");
         m.put("subTotal", StatementCalculator.subtotal(stmt, servicePrices,
                 packageCost, taxableMerchandiseIds).doubleValue());
