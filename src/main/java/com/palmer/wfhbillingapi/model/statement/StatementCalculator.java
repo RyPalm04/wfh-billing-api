@@ -51,8 +51,9 @@ public final class StatementCalculator {
                 .filter(merch -> taxableMerchandiseIds.contains(merch.merchandiseId()))
                 .map(StatementMerchandiseLineItem::price)
                 .toArray(BigDecimal[]::new));
-        
-        return taxableTotal.multiply(statement.salesTaxRate()).setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal taxRate = statement.salesTaxRate() != null ? statement.salesTaxRate() : BigDecimal.ZERO;
+        return taxableTotal.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
     }
 
     public static BigDecimal subtotal(SavedStatement statement, Map<Integer, BigDecimal> servicePrices, BigDecimal packageCost, Set<Integer> taxableMerchandiseIds) {
