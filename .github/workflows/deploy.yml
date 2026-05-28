@@ -43,7 +43,7 @@ jobs:
 
   deploy-production:
     needs: build
-    if: contains(github.ref, 'beta') == false
+    if: contains(github.ref, 'beta') == false && contains(github.ref, 'rc') == false
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -66,7 +66,7 @@ jobs:
 
   deploy-beta:
     needs: build
-    if: contains(github.ref, 'beta')
+    if: contains(github.ref, 'beta') || contains(github.ref, 'rc')
     runs-on: ubuntu-latest
     environment: beta
     steps:
