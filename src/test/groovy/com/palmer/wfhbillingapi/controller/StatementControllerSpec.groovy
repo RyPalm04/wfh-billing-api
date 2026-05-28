@@ -47,6 +47,19 @@ class StatementControllerSpec extends Specification {
                 .andExpect(jsonPath('$[0].servicesForName').value("Test Person"))
     }
 
+    def "GET /statements returns 200 with empty list"() {
+        given:
+        savedStatementService.findAll() >> []
+
+        when:
+        def result = mockMvc.perform(MockMvcRequestBuilders.get("/statements").accept(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath('$').isArray())
+                .andExpect(jsonPath('$').isEmpty())
+    }
+
     def "GET /statements/{id} returns 200 with full statement"() {
         given:
         savedStatementService.findById(1) >> new SavedStatement(
@@ -137,6 +150,7 @@ class StatementControllerSpec extends Specification {
         then:
         result.andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE))
+        .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"statement-1.pdf\""))
     }
 
     def "POST /statements with package name and price returns them in response"() {
