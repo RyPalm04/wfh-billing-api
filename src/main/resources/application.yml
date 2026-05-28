@@ -15,3 +15,8 @@ server:
 
 api:
   key: ${API_KEY}
+
+cors:
+  allowed-origins:
+    - ${CORS_ORIGIN_LOCAL:http://localhost:5173}
+    - ${CORS_ORIGIN_PROD:https://wfh-billing*.vercel.app}
