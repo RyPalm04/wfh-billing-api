@@ -47,27 +47,27 @@ public class CatalogController {
     }
 
     @GetMapping("cash-advances")
-    public Iterable<CashAdvance> getCashAdvances() {
+    public List<CashAdvance> getCashAdvances() {
         LOGGER.debug("getCashAdvances called");
         return cashAdvanceRepository.findAll();
     }
 
     @GetMapping("merchandise")
-    public Iterable<Merchandise> getMerchandise() {
+    public List<Merchandise> getMerchandise() {
         LOGGER.debug("getMerchandise called");
         return merchandiseRepository.findAll();
     }
 
     @GetMapping("services")
-    public Iterable<Service> getServices() {
+    public List<Service> getServices() {
         LOGGER.debug("getServices called");
         return serviceRepository.findAll();
     }
 
     @GetMapping("packages")
-    public Iterable<ServicePackage> getPackages(@RequestParam(defaultValue = "false") boolean includeLegacy) {
+    public List<ServicePackage> getPackages(@RequestParam(defaultValue = "false") boolean includeLegacy) {
         LOGGER.debug("getPackages called, includeLegacy = {}", includeLegacy);
-        return ((List<ServicePackage>) servicePackageRepository.findAll()).stream()
+        return servicePackageRepository.findAll().stream()
                 .filter(p -> includeLegacy || !p.isLegacyPackage())
                 .toList();
     }
@@ -84,7 +84,7 @@ public class CatalogController {
     }
 
     @GetMapping("special-charges")
-    public Iterable<SpecialCharge> getSpecialCharges() {
+    public List<SpecialCharge> getSpecialCharges() {
         LOGGER.debug("getSpecialCharges called");
         return specialChargeRepository.findAll();
     }
@@ -92,14 +92,14 @@ public class CatalogController {
     @GetMapping
     public CatalogBundle getCatalog() {
         LOGGER.debug("getCatalog called");
-        List<PackageDetail> packages = ((List<ServicePackage>) getPackages(false)).stream()
+        List<PackageDetail> packages = getPackages(false).stream()
                 .map(p -> new PackageDetail(p.getId(), p.getSortOrder(), p.getName(), p.getDefaultCost(),
                         servicePackageRepository.findServiceIdsByPackageId(p.getId())))
                 .toList();
         return new CatalogBundle(packages,
-                (List<Service>) serviceRepository.findAll(),
-                (List<Merchandise>) merchandiseRepository.findAll(),
-                (List<SpecialCharge>) specialChargeRepository.findAll(),
-                (List<CashAdvance>) cashAdvanceRepository.findAll());
+                serviceRepository.findAll(),
+                merchandiseRepository.findAll(),
+                specialChargeRepository.findAll(),
+                cashAdvanceRepository.findAll());
     }
 }
