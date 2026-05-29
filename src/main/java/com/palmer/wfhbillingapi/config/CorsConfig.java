@@ -15,7 +15,7 @@ import java.util.List;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
-    private final Logger log = LoggerFactory.getLogger(CorsConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(CorsConfig.class);
     private final CorsProperties corsProperties;
 
     public CorsConfig(CorsProperties corsProperties) {
@@ -24,9 +24,9 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter() {
-        log.info("CORS allowed origins: {}", corsProperties.getAllowedOrigins());
+        log.info("CORS allowed origins: {}", corsProperties.allowedOrigins());
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
+        config.setAllowedOriginPatterns(corsProperties.allowedOrigins());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
 
