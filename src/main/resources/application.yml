@@ -22,5 +22,5 @@ cors:
     - ${CORS_ORIGIN_PROD:https://wfh-billing*.vercel.app}
 
 github:
-  token: ${GITHUB_TOKEN}
+  token: ${GH_TOKEN}
   repo: RyPalm04/wfh-billing
