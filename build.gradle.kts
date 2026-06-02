@@ -6,7 +6,18 @@ plugins {
 }
 
 group = "com.palmer"
-version = "0.0.1-SNAPSHOT"
+
+val appVersionBase: String by project
+val appVersionQualifier: String = run {
+    val ref = System.getenv("GITHUB_REF_NAME") ?: ""
+    when {
+        ref.isEmpty() -> "LOCAL"
+        ref == "master" -> ""
+        ref.matches(Regex("v\\d+\\.\\d+\\.\\d+")) -> ""
+        else -> Regex("v\\d+\\.\\d+\\.\\d+-(.+)").find(ref)?.groupValues?.get(1) ?: "SNAPSHOT"
+    }
+}
+version = if (appVersionQualifier.isEmpty()) appVersionBase else "$appVersionBase-$appVersionQualifier"
 
 java {
 	toolchain {
@@ -16,6 +27,10 @@ java {
 
 repositories {
 	mavenCentral()
+}
+
+springBoot {
+    buildInfo()
 }
 
 dependencies {
