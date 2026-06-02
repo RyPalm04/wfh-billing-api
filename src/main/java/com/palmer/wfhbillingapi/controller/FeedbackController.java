@@ -4,6 +4,7 @@ import com.palmer.wfhbillingapi.dto.FeedbackRequest;
 import com.palmer.wfhbillingapi.service.GitHubService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,9 +19,11 @@ public class FeedbackController {
 
     private static final Logger log = LoggerFactory.getLogger(FeedbackController.class);
     private final GitHubService gitHubService;
+    private final BuildProperties buildProperties;
 
-    public FeedbackController(GitHubService gitHubService) {
+    public FeedbackController(GitHubService gitHubService, BuildProperties buildProperties) {
         this.gitHubService = gitHubService;
+        this.buildProperties = buildProperties;
     }
 
     @PostMapping
@@ -45,10 +48,11 @@ public class FeedbackController {
                 - **Referrer:** %s
                 - **App Version:** %s
                 - **Platform:** %s
+                - **API Version:** %s
                 """.formatted(request.description(), request.type(), request.metadata().page(),
                               request.metadata().userAgent(), request.metadata().screenSize(),
                               request.metadata().referrer(), request.metadata().appVersion(),
-                              request.metadata().platform());
+                              request.metadata().platform(), buildProperties.getVersion());
 
         String label = switch (request.type()) {
             case "Bug" -> "bug";
