@@ -43,9 +43,12 @@ public class FeedbackController {
                 - **Browser:** %s
                 - **Screen:** %s
                 - **Referrer:** %s
+                - **App Version:** %s
+                - **Platform:** %s
                 """.formatted(request.description(), request.type(), request.metadata().page(),
                               request.metadata().userAgent(), request.metadata().screenSize(),
-                              request.metadata().referrer());
+                              request.metadata().referrer(), request.metadata().appVersion(),
+                              request.metadata().platform());
 
         String label = switch (request.type()) {
             case "Bug" -> "bug";

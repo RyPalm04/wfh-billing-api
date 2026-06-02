@@ -9,7 +9,9 @@ public record FeedbackRequest(
             String page,
             String userAgent,
             String screenSize,
-            String referrer
+            String referrer,
+            String appVersion,
+            String platform
     ) {
     }
 }
