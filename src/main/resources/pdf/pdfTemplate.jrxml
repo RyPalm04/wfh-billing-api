@@ -139,7 +139,7 @@
                     <textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
                         <font fontName="Arial" size="16" isBold="true"/>
                     </textElement>
-                    <text><![CDATA[WRIGHT FUNERAL HOME]]></text>
+                    <text><![CDATA[YOUR FUNERAL HOME]]></text>
                 </staticText>
                 <staticText>
                     <reportElement x="0" y="19" width="286" height="17" uuid="4295aba2-f77c-444b-810e-28ca5faa7e75">
@@ -148,7 +148,7 @@
                     <textElement textAlignment="Center" verticalAlignment="Middle">
                         <font fontName="Great Vibes" size="11"/>
                     </textElement>
-                    <text><![CDATA["A Family Tradition of Trust & Dignity"]]></text>
+                    <text><![CDATA[YOUR TAGLINE]]></text>
                 </staticText>
                 <staticText>
                     <reportElement x="0" y="36" width="286" height="39" uuid="8af67e31-d431-4b2b-8e33-619c018ba0a9">
@@ -157,9 +157,9 @@
                     <textElement textAlignment="Center" verticalAlignment="Middle">
                         <font fontName="Arial"/>
                     </textElement>
-                    <text><![CDATA[1201 W HELM STREET PO BOX 496
-BROOKFIELD, MISSOURI 64628
-(660) 258-5050]]></text>
+                    <text><![CDATA[[Address]
+[City, State, ZIP]
+[Phone Number]]]></text>
                 </staticText>
                 <staticText>
                     <reportElement x="180" y="75" width="31" height="11" uuid="47b6ae2c-2a0d-4b20-b6b3-c1261ec3712d">
@@ -2493,7 +2493,7 @@ ________________________________________________________________________________
                     <textElement>
                         <font fontName="Arial" size="8"/>
                     </textElement>
-                    <text><![CDATA[Authorization is hereby granted for Wright Funeral Home to embalm, care for, and prepare for final disposition in accordance with customary professional practice, the body named above. We state we have legal right to control such disposition.
+                    <text><![CDATA[Authorization is hereby granted for [Funeral Home Name] to embalm, care for, and prepare for final disposition in accordance with customary professional practice, the body named above. We state we have legal right to control such disposition.
 
 Signed:   ___________________________________________
 Address: ___________________________________________
@@ -2507,12 +2507,12 @@ Date:      ___________________________________________]]></text>
                     <textElement markup="html">
                         <font fontName="Arial" size="8"/>
                     </textElement>
-                    <text><![CDATA[<b>ACCEPTANCE:</b>    Wright Funeral Home agrees to provide all the services, merchandise, and cash advances indicated on this statement.
+                    <text><![CDATA[<b>ACCEPTANCE:</b>    [Funeral Home Name] agrees to provide all the services, merchandise, and cash advances indicated on this statement.
 <br/><br/>
 
 
    _____________________________________________________<br/>
-  <i>Accepted for Wright Funeral Home</i>
+  <i>Accepted for [Funeral Home Name]</i>
 <br/><br/>
 
    _____________________________________________________<br/>
