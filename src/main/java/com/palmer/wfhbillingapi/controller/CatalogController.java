@@ -12,6 +12,7 @@ import com.palmer.wfhbillingapi.repository.MerchandiseRepository;
 import com.palmer.wfhbillingapi.repository.ServicePackageRepository;
 import com.palmer.wfhbillingapi.repository.ServiceRepository;
 import com.palmer.wfhbillingapi.repository.SpecialChargeRepository;
+import com.palmer.wfhbillingapi.security.TenantContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Exposes read-only catalog endpoints used to populate the billing statement UI.
@@ -38,7 +42,9 @@ public class CatalogController {
     private final ServicePackageRepository servicePackageRepository;
     private final SpecialChargeRepository specialChargeRepository;
 
-    public CatalogController(CashAdvanceRepository cashAdvanceRepository, MerchandiseRepository merchandiseRepository, ServiceRepository serviceRepository, ServicePackageRepository servicePackageRepository, SpecialChargeRepository specialChargeRepository) {
+    public CatalogController(CashAdvanceRepository cashAdvanceRepository, MerchandiseRepository merchandiseRepository,
+                             ServiceRepository serviceRepository, ServicePackageRepository servicePackageRepository,
+                             SpecialChargeRepository specialChargeRepository) {
         this.cashAdvanceRepository = cashAdvanceRepository;
         this.merchandiseRepository = merchandiseRepository;
         this.serviceRepository = serviceRepository;
@@ -49,25 +55,26 @@ public class CatalogController {
     @GetMapping("cash-advances")
     public List<CashAdvance> getCashAdvances() {
         LOGGER.debug("getCashAdvances called");
-        return cashAdvanceRepository.findAll();
+        return forTenant(cashAdvanceRepository::findAll, cashAdvanceRepository::findAllByTenantId);
     }
 
     @GetMapping("merchandise")
     public List<Merchandise> getMerchandise() {
         LOGGER.debug("getMerchandise called");
-        return merchandiseRepository.findAll();
+        return forTenant(merchandiseRepository::findAll, merchandiseRepository::findAllByTenantId);
     }
 
     @GetMapping("services")
     public List<Service> getServices() {
         LOGGER.debug("getServices called");
-        return serviceRepository.findAll();
+        return forTenant(serviceRepository::findAll, serviceRepository::findAllByTenantId);
     }
 
     @GetMapping("packages")
     public List<ServicePackage> getPackages(@RequestParam(defaultValue = "false") boolean includeLegacy) {
         LOGGER.debug("getPackages called, includeLegacy = {}", includeLegacy);
-        return servicePackageRepository.findAll().stream()
+        return forTenant(servicePackageRepository::findAll, servicePackageRepository::findAllByTenantId)
+                .stream()
                 .filter(p -> includeLegacy || !p.isLegacyPackage())
                 .toList();
     }
@@ -75,9 +82,11 @@ public class CatalogController {
     @GetMapping("packages/{id}")
     public PackageDetail getPackageById(@PathVariable Integer id) {
         LOGGER.debug("getPackageById called");
-        ServicePackage servicePackage = servicePackageRepository.findById(id).orElseThrow();
+        ServicePackage servicePackage = isPlatformAdmin() ?
+                                        servicePackageRepository.findById(id).orElseThrow() :
+                                        servicePackageRepository.findByIdAndTenantId(id, TenantContext.getTenantId()).orElseThrow();
 
-        List<Integer> serviceIds = servicePackageRepository.findServiceIdsByPackageId(id);
+        List<Integer> serviceIds = getServiceIds(id);
 
         return new PackageDetail(servicePackage.getId(), servicePackage.getSortOrder(), servicePackage.getName(),
                 servicePackage.getDefaultCost(), serviceIds);
@@ -86,20 +95,36 @@ public class CatalogController {
     @GetMapping("special-charges")
     public List<SpecialCharge> getSpecialCharges() {
         LOGGER.debug("getSpecialCharges called");
-        return specialChargeRepository.findAll();
+        return forTenant(specialChargeRepository::findAll, specialChargeRepository::findAllByTenantId);
     }
 
     @GetMapping
     public CatalogBundle getCatalog() {
         LOGGER.debug("getCatalog called");
         List<PackageDetail> packages = getPackages(false).stream()
-                .map(p -> new PackageDetail(p.getId(), p.getSortOrder(), p.getName(), p.getDefaultCost(),
-                        servicePackageRepository.findServiceIdsByPackageId(p.getId())))
-                .toList();
+                                                         .map(p -> new PackageDetail(p.getId(), p.getSortOrder(),
+                                                                 p.getName(), p.getDefaultCost(),
+                                                                 getServiceIds(p.getId())))
+                                                         .toList();
+
         return new CatalogBundle(packages,
-                serviceRepository.findAll(),
-                merchandiseRepository.findAll(),
-                specialChargeRepository.findAll(),
-                cashAdvanceRepository.findAll());
+                forTenant(serviceRepository::findAll, serviceRepository::findAllByTenantId),
+                forTenant(merchandiseRepository::findAll, merchandiseRepository::findAllByTenantId),
+                forTenant(specialChargeRepository::findAll, specialChargeRepository::findAllByTenantId),
+                forTenant(cashAdvanceRepository::findAll, cashAdvanceRepository::findAllByTenantId));
+    }
+
+    private boolean isPlatformAdmin() {
+        return "platform_admin".equals(TenantContext.getRole());
+    }
+
+    private List<Integer> getServiceIds(Integer id) {
+        return isPlatformAdmin() ?
+               servicePackageRepository.findServiceIdsByPackageId(id) :
+               servicePackageRepository.findServiceIdsByPackageIdAndTenantId(id, TenantContext.getTenantId());
+    }
+
+    private <T> List<T> forTenant(Supplier<List<T>> allQuery, Function<UUID, List<T>> tenantQuery) {
+        return isPlatformAdmin() ? allQuery.get() : tenantQuery.apply(TenantContext.getTenantId());
     }
 }

@@ -16,7 +16,7 @@ import com.palmer.wfhbillingapi.repository.MerchandiseRepository;
 import com.palmer.wfhbillingapi.repository.ServicePackageRepository;
 import com.palmer.wfhbillingapi.repository.ServiceRepository;
 import com.palmer.wfhbillingapi.repository.SpecialChargeRepository;
-import jakarta.annotation.Nonnull;
+import com.palmer.wfhbillingapi.security.TenantContext;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * {@link PdfService} implementation using JasperReports to render billing statement PDFs.
@@ -82,13 +81,29 @@ public class PdfServiceImpl implements PdfService {
     public PdfResult generatePdf(int statementId) throws IOException {
         SavedStatement stmt = savedStatementService.findById(statementId);
 
-        List<com.palmer.wfhbillingapi.model.catalog.Service> services = StreamSupport.stream(serviceRepository.findAll().spliterator(), false).toList();
-        List<Merchandise> merchandise = StreamSupport.stream(merchandiseRepository.findAll().spliterator(), false).toList();
-        List<SpecialCharge> specialCharges = StreamSupport.stream(specialChargeRepository.findAll().spliterator(), false).toList();
-        List<CashAdvance> cashAdvances = StreamSupport.stream(cashAdvanceRepository.findAll().spliterator(), false).toList();
-        ServicePackage pkg = stmt.packageId() != null
-                ? servicePackageRepository.findById(stmt.packageId()).orElse(null)
-                : null;
+        List<com.palmer.wfhbillingapi.model.catalog.Service> services = isPlatformAdmin() ?
+                                                                        serviceRepository.findAll() :
+                                                                        serviceRepository.findAllByTenantId(TenantContext.getTenantId());
+
+        List<Merchandise> merchandise = isPlatformAdmin() ?
+                                        merchandiseRepository.findAll() :
+                                        merchandiseRepository.findAllByTenantId(TenantContext.getTenantId());
+
+        List<SpecialCharge> specialCharges = isPlatformAdmin() ?
+                                             specialChargeRepository.findAll() :
+                                             specialChargeRepository.findAllByTenantId(TenantContext.getTenantId());
+
+        List<CashAdvance> cashAdvances = isPlatformAdmin() ?
+                                         cashAdvanceRepository.findAll() :
+                                         cashAdvanceRepository.findAllByTenantId(TenantContext.getTenantId());
+
+        ServicePackage pkg = null;
+
+        if (stmt.packageId() != null) {
+                pkg = isPlatformAdmin() ?
+                  servicePackageRepository.findById(stmt.packageId()).orElse(null) :
+                  servicePackageRepository.findByIdAndTenantId(stmt.packageId(), TenantContext.getTenantId()).orElse(null);
+        }
 
         try {
             JasperPrint print = fill(stmt, services, merchandise, specialCharges, cashAdvances, pkg);
@@ -295,5 +310,9 @@ public class PdfServiceImpl implements PdfService {
 
     private static String formatDate(LocalDate d) {
         return d == null ? "" : d.format(DateTimeFormatter.ofPattern("M/d/yyyy"));
+    }
+
+    private boolean isPlatformAdmin() {
+        return "platform_admin".equals(TenantContext.getRole());
     }
 }
