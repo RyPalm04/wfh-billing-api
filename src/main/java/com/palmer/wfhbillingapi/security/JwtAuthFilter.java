@@ -1,6 +1,5 @@
 package com.palmer.wfhbillingapi.security;
 
-import com.nimbusds.jwt.JWT;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,32 +13,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
-@Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
+    private final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
+    private final String apiKey;
+    private final NimbusJwtDecoder jwtDecoder;
 
-    @Value("{supabase.jwt.secret}")
-    private String jwtSecret;
-
-    @Value("{api.key}")
-    private String apiKey;
-
-    private NimbusJwtDecoder jwtDecoder;
-
-    @PostConstruct
-    public void init() {
-        SecretKeySpec secretKey = new SecretKeySpec(jwtSecret.getBytes(), "HmacSHA256");
-        jwtDecoder = NimbusJwtDecoder.withSecretKey(secretKey).build();
+    public JwtAuthFilter(String jwtSecret, String apiKey) {
+        SecretKeySpec key = new SecretKeySpec(jwtSecret.getBytes(), "HmacSHA256");
+        this.jwtDecoder = NimbusJwtDecoder.withSecretKey(key).build();
+        this.apiKey = apiKey;
     }
 
     @Override
@@ -75,7 +65,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        filterChain.doFilter(request, response);
     }
 
     private EternatelUserPrincipal buildFromJwt(Jwt jwt) {
