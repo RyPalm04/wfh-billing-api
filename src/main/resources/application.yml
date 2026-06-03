@@ -24,3 +24,7 @@ cors:
 github:
   token: ${GH_TOKEN}
   repo: RyPalm04/wfh-billing
+
+supabase:
+  jwt:
+    secret: ${SUPABASE_JWT_SECRET}
