@@ -2,6 +2,7 @@ package com.palmer.wfhbillingapi.controller
 
 import com.palmer.wfhbillingapi.model.catalog.*
 import com.palmer.wfhbillingapi.repository.*
+import com.palmer.wfhbillingapi.security.TenantContext
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -30,6 +31,11 @@ class CatalogControllerSpec extends Specification {
                 specialChargeRepository,
         )
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+        TenantContext.setRole("platform_admin")
+    }
+
+    def cleanup() {
+        TenantContext.clear()
     }
 
     def "GET /catalog/cash-advances returns 200 with results"() {
@@ -138,5 +144,23 @@ class CatalogControllerSpec extends Specification {
         result.andExpectAll(status().isOk(),
                 jsonPath('$').isArray(),
                 jsonPath('$.length()').value(2))
+    }
+
+    def "GET /catalog/packages only returns packages for the authenticated tenant"() {
+        given:
+        TenantContext.setTenantId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
+        TenantContext.setRole("staff")
+        servicePackageRepository.findAllByTenantId(UUID.fromString("11111111-1111-1111-1111-111111111111")) >> [
+                new ServicePackage(1, 1, "Tenant Package", 5995.00G, false)
+        ]
+
+        when:
+        def result = mockMvc.perform(get("/catalog/packages")
+                .accept(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpectAll(status().isOk(),
+                jsonPath('$.length()').value(1),
+                jsonPath('$[0].name').value("Tenant Package"))
     }
 }
