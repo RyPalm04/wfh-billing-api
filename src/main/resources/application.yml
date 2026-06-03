@@ -12,6 +12,8 @@ spring:
 
 server:
   port: ${PORT:18080}
+  servlet:
+    context-path: /api/v1
 
 api:
   key: ${API_KEY}
