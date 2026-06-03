@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -26,9 +27,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final String apiKey;
     private final NimbusJwtDecoder jwtDecoder;
 
-    public JwtAuthFilter(String jwtSecret, String apiKey) {
-        SecretKeySpec key = new SecretKeySpec(jwtSecret.getBytes(), "HmacSHA256");
-        this.jwtDecoder = NimbusJwtDecoder.withSecretKey(key).build();
+    public JwtAuthFilter(String jwksUri, String apiKey) {
+        this.jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwksUri)
+                                          .jwsAlgorithm(SignatureAlgorithm.ES256)
+                                          .build();
         this.apiKey = apiKey;
     }
 

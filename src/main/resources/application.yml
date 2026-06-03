@@ -28,5 +28,4 @@ github:
   repo: RyPalm04/wfh-billing
 
 supabase:
-  jwt:
-    secret: ${SUPABASE_JWT_SECRET}
+  jwks-uri: ${SUPABASE_JWKS_URI:https://folvyylfgqdonysflsru.supabase.co/auth/v1/.well-known/jwks.json}

@@ -18,8 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Bean
-    public JwtAuthFilter jwtAuthFilter(@Value("${supabase.jwt.secret}") String jwtSecret, @Value("${api.key}")  String apiKey) {
-        return new JwtAuthFilter(jwtSecret, apiKey);
+    public JwtAuthFilter jwtAuthFilter(@Value("${supabase.jwks-uri}") String jwksUri, @Value("${api.key}")  String apiKey) {
+        return new JwtAuthFilter(jwksUri, apiKey);
     }
 
     @Bean
