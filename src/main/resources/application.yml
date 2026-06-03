@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/eternatel_billing_dev}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:local_password}
     hikari:
       maximum-pool-size: 2
       minimum-idle: 0
@@ -16,7 +16,7 @@ server:
     context-path: /api/v1
 
 api:
-  key: ${API_KEY}
+  key: ${API_KEY:12345}
 
 cors:
   allowed-origins:
@@ -24,7 +24,7 @@ cors:
     - ${CORS_ORIGIN_PROD:https://wfh-billing*.vercel.app}
 
 github:
-  token: ${GH_TOKEN}
+  token: ${GH_TOKEN:mock-github-token}
   repo: RyPalm04/wfh-billing
 
 supabase:
