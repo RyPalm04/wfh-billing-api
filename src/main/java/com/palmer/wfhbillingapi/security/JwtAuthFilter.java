@@ -20,6 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -37,37 +38,41 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if ("OPTIONS".equals(request.getMethod())) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token =  authHeader.substring(7);
-
-            try {
-                Jwt jwt = jwtDecoder.decode(token);
-                setSecurityContext(buildFromJwt(jwt));
-            } catch (JwtException e) {
-                logger.error("Unauthorized access to jwt token", e);
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        try {
+            if ("OPTIONS".equals(request.getMethod())) {
+                filterChain.doFilter(request, response);
                 return;
             }
+
+            String authHeader = request.getHeader("Authorization");
+
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+
+                try {
+                    Jwt jwt = jwtDecoder.decode(token);
+                    setSecurityContext(buildFromJwt(jwt));
+                } catch (JwtException e) {
+                    logger.error("Unauthorized access to jwt token", e);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
+                }
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String xApiKey = request.getHeader("X-Api-Key");
+
+            if (xApiKey != null && xApiKey.equals(apiKey)) {
+                setSecurityContext(new EternatelUserPrincipal("desktop", null, "DESKTOP"));
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             filterChain.doFilter(request, response);
-            return;
+        } finally {
+            TenantContext.clear();
         }
-
-        String xApiKey = request.getHeader("X-Api-Key");
-
-        if (xApiKey != null && xApiKey.equals(apiKey)) {
-            setSecurityContext(new EternatelUserPrincipal("desktop", null, "DESKTOP"));
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        filterChain.doFilter(request, response);
     }
 
     private EternatelUserPrincipal buildFromJwt(Jwt jwt) {
@@ -80,7 +85,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private void setSecurityContext(EternatelUserPrincipal userPrincipal) {
+        if (userPrincipal == null) {
+            return;
+        }
+
         UsernamePasswordAuthenticationToken authorization = new UsernamePasswordAuthenticationToken(userPrincipal, null, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authorization);
+
+        if (userPrincipal.tenantId() != null) {
+            TenantContext.setTenantId(UUID.fromString(userPrincipal.tenantId()));
+        }
+
+        TenantContext.setRole(userPrincipal.role());
     }
 }
