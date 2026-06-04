@@ -29,3 +29,9 @@ github:
 
 supabase:
   jwks-uri: ${SUPABASE_JWKS_URI:https://folvyylfgqdonysflsru.supabase.co/auth/v1/.well-known/jwks.json}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:mock-supabase-service-role-key}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY:mock-stripe-secret-key}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:mock-stripe-webhook-secret}
+  price-id: ${STRIPE_PRICE_ID:mock-stripe-price-id}
