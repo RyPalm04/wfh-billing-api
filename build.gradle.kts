@@ -34,6 +34,7 @@ springBoot {
 }
 
 dependencies {
+    implementation("com.stripe:stripe-java:32.2.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
