@@ -1,5 +1,6 @@
 package com.palmer.wfhbillingapi.security;
 
+import com.palmer.wfhbillingapi.repository.TenantRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,12 +28,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final Logger logger = LoggerFactory.getLogger(JwtAuthFilter.class);
     private final String apiKey;
     private final NimbusJwtDecoder jwtDecoder;
+    private final TenantRepository tenantRepository;
 
-    public JwtAuthFilter(String jwksUri, String apiKey) {
+    public JwtAuthFilter(String jwksUri, String apiKey, TenantRepository tenantRepository) {
         this.jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwksUri)
                                           .jwsAlgorithm(SignatureAlgorithm.ES256)
                                           .build();
         this.apiKey = apiKey;
+        this.tenantRepository = tenantRepository;
     }
 
     @Override
@@ -51,6 +54,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 try {
                     Jwt jwt = jwtDecoder.decode(token);
+                    EternatelUserPrincipal principal = buildFromJwt(jwt);
+
+                    if (!isSubscriptionActive(principal)) {
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return;
+                    }
+
                     setSecurityContext(buildFromJwt(jwt));
                 } catch (JwtException e) {
                     logger.error("Unauthorized access to jwt token", e);
@@ -82,6 +92,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String role = appMeta != null ? (String) appMeta.get("app_role") : null;
 
         return new EternatelUserPrincipal(userId, tenantId, role);
+    }
+
+    private boolean isSubscriptionActive(EternatelUserPrincipal principal) {
+        if (principal.tenantId() == null) {
+            return true;
+        }
+
+        return tenantRepository.findById(UUID.fromString(principal.tenantId()))
+                .map(t -> "active".equals(t.status()) || "platform_manager".equals(t.status()))
+                .orElse(false);
     }
 
     private void setSecurityContext(EternatelUserPrincipal userPrincipal) {

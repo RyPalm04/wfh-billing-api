@@ -1,5 +1,6 @@
 package com.palmer.wfhbillingapi.config;
 
+import com.palmer.wfhbillingapi.repository.TenantRepository;
 import com.palmer.wfhbillingapi.security.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Bean
-    public JwtAuthFilter jwtAuthFilter(SupabaseProperties supabaseProperties, @Value("${api.key}")  String apiKey) {
-        return new JwtAuthFilter(supabaseProperties.url() + "/auth/v1/.well-known/jwks.json", apiKey);
+    public JwtAuthFilter jwtAuthFilter(SupabaseProperties supabaseProperties, @Value("${api.key}")  String apiKey,
+                                       TenantRepository tenantRepository) {
+        return new JwtAuthFilter(supabaseProperties.url() + "/auth/v1/.well-known/jwks.json", apiKey, tenantRepository);
     }
 
     @Bean
