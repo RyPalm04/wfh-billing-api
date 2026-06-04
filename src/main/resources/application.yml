@@ -35,3 +35,5 @@ stripe:
   secret-key: ${STRIPE_SECRET_KEY:mock-stripe-secret-key}
   webhook-secret: ${STRIPE_WEBHOOK_SECRET:mock-stripe-webhook-secret}
   price-id: ${STRIPE_PRICE_ID:mock-stripe-price-id}
+  success-url: ${STRIPE_SUCCESS_URL:http://localhost:5173/dashboard}
+  cancel-url: ${STRIPE_CANCEL_URL:http://localhost:5173/signup}
