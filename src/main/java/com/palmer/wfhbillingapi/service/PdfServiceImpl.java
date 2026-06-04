@@ -145,7 +145,7 @@ public class PdfServiceImpl implements PdfService {
         m.put("placeOfDeath", Objects.requireNonNullElse(stmt.placeOfDeath(), ""));
         m.put("serviceDate", formatDate(stmt.serviceDate()));
         m.put("embalmingReason", Objects.requireNonNullElse(stmt.reasonForEmbalming(), ""));
-        m.put("packagePrice", servicePackage != null ? toDouble(servicePackage.getDefaultCost()) : null);
+        m.put("packagePrice", servicePackage != null ? toDouble(servicePackage.defaultCost()) : null);
 
         String[] serviceFields = {
                 "basicServicesPrice", "embalmingPrice", "otherPreparationPrice",
@@ -172,11 +172,11 @@ public class PdfServiceImpl implements PdfService {
 
         for (int i = 0; i < Math.min(serviceFields.length, services.size()); i++) {
             com.palmer.wfhbillingapi.model.catalog.Service svc = services.get(i);
-            StatementServiceLineItem item = savedServices.get(svc.getId());
+            StatementServiceLineItem item = savedServices.get(svc.id());
             double itemPrice = item != null && item.price() != null ? toDouble(item.price()) :
-                    svc.getDefaultCost() != null ? toDouble(svc.getDefaultCost()) :
+                    svc.defaultCost() != null ? toDouble(svc.defaultCost()) :
                     0.0;
-            m.put(serviceFields[i], savedServices.containsKey(svc.getId()) ? itemPrice : null);
+            m.put(serviceFields[i], savedServices.containsKey(svc.id()) ? itemPrice : null);
             if (serviceDescFields[i] != null) {
                 m.put(serviceDescFields[i], item != null ? Objects.requireNonNullElse(item.description(), "") : "");
             }
@@ -198,7 +198,7 @@ public class PdfServiceImpl implements PdfService {
 
         for (int i = 0; i < Math.min(merchPriceFields.length, merchandise.size()); i++) {
             Merchandise merch = merchandise.get(i);
-            StatementMerchandiseLineItem item = savedMerch.get(merch.getId());
+            StatementMerchandiseLineItem item = savedMerch.get(merch.id());
             m.put(merchPriceFields[i], item != null ? toDouble(item.price()) : null);
             if (merchDescFields[i] != null) {
                 String description = getMerchandiseDescription(item, merch);
@@ -219,7 +219,7 @@ public class PdfServiceImpl implements PdfService {
 
         for (int i = 0; i < Math.min(specialChargePriceFields.length, specialCharges.size()); i++) {
             SpecialCharge specialCharge = specialCharges.get(i);
-            StatementSpecialChargeLineItem item = savedSpecial.get(specialCharge.getId());
+            StatementSpecialChargeLineItem item = savedSpecial.get(specialCharge.id());
             m.put(specialChargePriceFields[i], item != null ? toDouble(item.price()) : null);
             if (specialChargeDescFields[i] != null) {
                 m.put(specialChargeDescFields[i], item != null ? Objects.requireNonNullElse(item.description(), "") : "");
@@ -247,21 +247,21 @@ public class PdfServiceImpl implements PdfService {
 
         for (int i = 0; i < cashCount; i++) {
             CashAdvance catalogItem = cashAdvances.get(i);
-            StatementCashAdvanceLineItem item = savedCash.get(catalogItem.getId());
+            StatementCashAdvanceLineItem item = savedCash.get(catalogItem.id());
             m.put(cashAdvanceDetailFields[i], item != null ? Objects.requireNonNullElse(item.provider(), ""): "");
             m.put(cashAdvancePriceFields[i], item != null ? toDouble(item.amount()) : null);
         }
 
         Map<Integer, BigDecimal> servicePrices = services.stream()
-                .filter(service -> service.getDefaultCost() != null)
-                .collect(Collectors.toMap(com.palmer.wfhbillingapi.model.catalog.Service::getId,
-                        com.palmer.wfhbillingapi.model.catalog.Service::getDefaultCost));
+                .filter(service -> service.defaultCost() != null)
+                .collect(Collectors.toMap(com.palmer.wfhbillingapi.model.catalog.Service::id,
+                        com.palmer.wfhbillingapi.model.catalog.Service::defaultCost));
         Set<Integer> taxableMerchandiseIds = merchandise.stream()
-                .filter(Merchandise::isSalesTaxable)
-                .map(Merchandise::getId)
+                .filter(Merchandise::salesTaxable)
+                .map(Merchandise::id)
                 .collect(Collectors.toSet());
         BigDecimal packageCost = servicePackage != null ?
-                servicePackage.getDefaultCost() : null;
+                servicePackage.defaultCost() : null;
 
         m.put("totalServices", StatementCalculator.servicesTotal(stmt,
                 servicePrices, packageCost).doubleValue());
@@ -292,11 +292,11 @@ public class PdfServiceImpl implements PdfService {
             return "";
         }
 
-        if (merch.getPricingMode() == Merchandise.PricingMode.PER_UNIT &&
-            merch.getDefaultCost() != null &&
-            merch.getDefaultCost().compareTo(BigDecimal.ZERO) > 0) {
-            int quantity = item.price().divide(merch.getDefaultCost(), 2, RoundingMode.HALF_UP).intValue();
-            description = String.format("%d at $%s/piece", quantity, merch.getDefaultCost().toPlainString());
+        if (merch.pricingMode() == Merchandise.PricingMode.PER_UNIT &&
+            merch.defaultCost() != null &&
+            merch.defaultCost().compareTo(BigDecimal.ZERO) > 0) {
+            int quantity = item.price().divide(merch.defaultCost(), 2, RoundingMode.HALF_UP).intValue();
+            description = String.format("%d at $%s/piece", quantity, merch.defaultCost().toPlainString());
         } else {
             description = Objects.requireNonNullElse(item.description(), "");
         }

@@ -4,10 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.palmer.wfhbillingapi.model.catalog.ServicePackage;
 import com.palmer.wfhbillingapi.model.statement.SavedStatement;
-import com.palmer.wfhbillingapi.model.lineitem.StatementCashAdvanceLineItem;
-import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
-import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
-import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
 import com.palmer.wfhbillingapi.model.statement.StatementData;
 import com.palmer.wfhbillingapi.security.TenantContext;
 import org.springframework.jdbc.core.RowMapper;
@@ -55,7 +51,7 @@ public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
         ServicePackage servicePackage = data.servicePackage();
         Boolean currentLegacy = (Boolean) rs.getObject("current_legacy_package");
         if (servicePackage != null && currentLegacy != null) {
-            servicePackage = new ServicePackage(servicePackage.getId(), servicePackage.getSortOrder(), servicePackage.getName(), servicePackage.getDefaultCost(), currentLegacy, TenantContext.getTenantId());
+            servicePackage = new ServicePackage(servicePackage.id(), servicePackage.sortOrder(), servicePackage.name(), servicePackage.defaultCost(), currentLegacy, TenantContext.getTenantId());
         }
         return new SavedStatement(
                 rs.getInt("id"),
