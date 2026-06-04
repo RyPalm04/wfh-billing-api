@@ -28,7 +28,7 @@ github:
   repo: RyPalm04/wfh-billing
 
 supabase:
-  jwks-uri: ${SUPABASE_JWKS_URI:https://folvyylfgqdonysflsru.supabase.co/auth/v1/.well-known/jwks.json}
+  url: ${SUPABASE_URL:https://folvyylfgqdonysflsru.supabase.co}
   service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:mock-supabase-service-role-key}
 
 stripe:
