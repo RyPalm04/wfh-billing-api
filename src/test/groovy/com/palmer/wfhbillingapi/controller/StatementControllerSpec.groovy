@@ -156,11 +156,11 @@ class StatementControllerSpec extends Specification {
     def "POST /statements with package name and price returns them in response"() {
         given:
         def request = new StatementRequest(1, "Test Person", null, "Memphis, TN",
-                LocalDate.of(2024, 1, 18), "", 0.0825G, 5000.00G, new ServicePackage(1, 1, "Traditional Two", 7495.00G, false), [], [], [], [])
+                LocalDate.of(2024, 1, 18), "", 0.0825G, 5000.00G, new ServicePackage(1, 1, "Traditional Two", 7495.00G, false, UUID.fromString("11111111-1111-1111-1111-111111111111")), [], [], [], [])
 
         savedStatementService.insertSavedStatement(_) >> new SavedStatement(
                 1, 1, "Test Person", null, "Memphis, TN", LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G,
-                LocalDateTime.now(), new ServicePackage(1, 1, "Traditional Two", 7495.00G, false), [], [], [], []
+                LocalDateTime.now(), new ServicePackage(1, 1, "Traditional Two", 7495.00G, false, UUID.fromString("11111111-1111-1111-1111-111111111111")), [], [], [], []
         )
 
         when:
@@ -179,7 +179,7 @@ class StatementControllerSpec extends Specification {
         given:
         savedStatementService.findById(1) >> new SavedStatement(
                 1, 1, "Test Person", null, "Memphis, TN", LocalDate.of(2024, 1, 18), "", 1, 0.0825G, 5000.00G,
-                LocalDateTime.now(), new ServicePackage(1, 1, "Traditional Two", 7495.00G, false), [], [], [], []
+                LocalDateTime.now(), new ServicePackage(1, 1, "Traditional Two", 7495.00G, false, UUID.fromString("11111111-1111-1111-1111-111111111111")), [], [], [], []
         )
 
         when:
@@ -195,7 +195,7 @@ class StatementControllerSpec extends Specification {
         given:
         savedStatementService.findById(1) >> new SavedStatement(
                 1, 1, "Test Person", null, "Memphis, TN", LocalDate.of(2024, 1, 18), "", 1,
-                0.0825G, 5000.00G, LocalDateTime.now(), new ServicePackage(2, 2, "Legacy Package", 3000.00G, true),
+                0.0825G, 5000.00G, LocalDateTime.now(), new ServicePackage(2, 2, "Legacy Package", 3000.00G, true, UUID.fromString("11111111-1111-1111-1111-111111111111")),
                 [], [], [], []
         )
 
