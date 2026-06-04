@@ -75,7 +75,7 @@ public class CatalogController {
         LOGGER.debug("getPackages called, includeLegacy = {}", includeLegacy);
         return forTenant(servicePackageRepository::findAll, servicePackageRepository::findAllByTenantId)
                 .stream()
-                .filter(p -> includeLegacy || !p.isLegacyPackage())
+                .filter(p -> includeLegacy || !p.legacyPackage())
                 .toList();
     }
 
@@ -88,8 +88,8 @@ public class CatalogController {
 
         List<Integer> serviceIds = getServiceIds(id);
 
-        return new PackageDetail(servicePackage.getId(), servicePackage.getSortOrder(), servicePackage.getName(),
-                servicePackage.getDefaultCost(), serviceIds);
+        return new PackageDetail(servicePackage.id(), servicePackage.sortOrder(), servicePackage.name(),
+                servicePackage.defaultCost(), serviceIds);
     }
 
     @GetMapping("special-charges")
@@ -102,9 +102,9 @@ public class CatalogController {
     public CatalogBundle getCatalog() {
         LOGGER.debug("getCatalog called");
         List<PackageDetail> packages = getPackages(false).stream()
-                                                         .map(p -> new PackageDetail(p.getId(), p.getSortOrder(),
-                                                                 p.getName(), p.getDefaultCost(),
-                                                                 getServiceIds(p.getId())))
+                                                         .map(p -> new PackageDetail(p.id(), p.sortOrder(),
+                                                                 p.name(), p.defaultCost(),
+                                                                 getServiceIds(p.id())))
                                                          .toList();
 
         return new CatalogBundle(packages,

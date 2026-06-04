@@ -3,5 +3,5 @@ package com.palmer.wfhbillingapi.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "supabase")
-public record SupabaseProperties(String jwksUri, String serviceRoleKey) {
+public record SupabaseProperties(String serviceRoleKey, String url) {
 }

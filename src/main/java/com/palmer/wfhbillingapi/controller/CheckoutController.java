@@ -7,6 +7,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.checkout.SessionCreateParams.LineItem;
 import com.stripe.param.checkout.SessionCreateParams.Mode;
+import com.stripe.param.checkout.SessionCreateParams.SubscriptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -38,7 +39,9 @@ public class CheckoutController {
                                                                              .setPrice(stripeProperties.priceId())
                                                                              .setQuantity(1L)
                                                                              .build())
-                                                        .putMetadata("supabase_user_id", principal.userId())
+                                                        .setSubscriptionData(SubscriptionData.builder()
+                                                                                                                 .putMetadata("supabase_user_id", principal.userId())
+                                                                                                                 .build())
                                                         .setSuccessUrl(stripeProperties.successUrl())
                                                         .setCancelUrl(stripeProperties.cancelUrl())
                                                         .build();

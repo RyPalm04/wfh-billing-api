@@ -109,7 +109,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
             preparedStatement.setObject(5, request.serviceDate());
             preparedStatement.setString(6, request.reasonForEmbalming());
             if (request.servicePackage() != null) {
-                preparedStatement.setInt(7, request.servicePackage().getId());
+                preparedStatement.setInt(7, request.servicePackage().id());
             } else {
                 preparedStatement.setNull(7, Types.INTEGER);
             }
@@ -148,7 +148,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
                 request.placeOfDeath(),
                 request.serviceDate(),
                 request.reasonForEmbalming(),
-                request.servicePackage() != null ? request.servicePackage().getId() : null,
+                request.servicePackage() != null ? request.servicePackage().id() : null,
                 request.salesTaxRate(),
                 request.payment(),
                 serializeData(request),

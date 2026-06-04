@@ -19,7 +19,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthFilter jwtAuthFilter(SupabaseProperties supabaseProperties, @Value("${api.key}")  String apiKey) {
-        return new JwtAuthFilter(supabaseProperties.jwksUri(), apiKey);
+        return new JwtAuthFilter(supabaseProperties.url() + "/auth/v1/.well-known/jwks.json", apiKey);
     }
 
     @Bean
@@ -27,7 +27,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                               .requestMatchers("/version").permitAll()
+                                               .requestMatchers("/version", "/webhook/stripe").permitAll()
                                                .anyRequest().authenticated())
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((request, response, authException) ->
