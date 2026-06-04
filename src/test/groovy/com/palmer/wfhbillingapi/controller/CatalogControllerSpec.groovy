@@ -40,7 +40,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog/cash-advances returns 200 with results"() {
         given:
-        cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening")]
+        cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening", UUID.fromString("11111111-1111-1111-1111-111111111111"))]
 
         when:
         def result = mockMvc.perform(get("/catalog/cash-advances"))
@@ -51,7 +51,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog/merchandise returns 200 with results"() {
         given:
-        merchandiseRepository.findAll() >> [new Merchandise(1, 1, "Casket or (alternative container)", null, true, true, Merchandise.PricingMode.FLAT)]
+        merchandiseRepository.findAll() >> [new Merchandise(1, 1, "Casket or (alternative container)", null, true, true, Merchandise.PricingMode.FLAT, UUID.fromString("11111111-1111-1111-1111-111111111111"))]
 
         when:
         def result = mockMvc.perform(get("/catalog/merchandise"))
@@ -62,7 +62,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog/services returns 200 with results"() {
         given:
-        serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, false, true)]
+        serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, false, true, UUID.fromString("11111111-1111-1111-1111-111111111111"))]
 
         when:
         def result = mockMvc.perform(get("/catalog/services"))
@@ -73,7 +73,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog/packages returns 200 with results"() {
         given:
-        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G, false)]
+        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G, false, UUID.fromString("11111111-1111-1111-1111-111111111111"))]
 
         when:
         def result = mockMvc.perform(get("/catalog/packages"))
@@ -84,7 +84,7 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog/special-charges returns 200 with results"() {
         given:
-        specialChargeRepository.findAll() >> [new SpecialCharge(1, 1, "Grave Service Setup/Delivery", null, true)]
+        specialChargeRepository.findAll() >> [new SpecialCharge(1, 1, "Grave Service Setup/Delivery", null, true, UUID.fromString("11111111-1111-1111-1111-111111111111"))]
 
         when:
         def result = mockMvc.perform(get("/catalog/special-charges"))
@@ -95,12 +95,12 @@ class CatalogControllerSpec extends Specification {
 
     def "GET /catalog returns 200 with all catalog items"() {
         given:
-        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G, false)]
+        servicePackageRepository.findAll() >> [new ServicePackage(1, 1, "Traditional One", 5995.00G, false, UUID.fromString("11111111-1111-1111-1111-111111111111"))]
         servicePackageRepository.findServiceIdsByPackageId(1) >> [1, 2, 3]
-        cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening")]
-        merchandiseRepository.findAll() >> [new Merchandise(1, 1, "Casket or (alternative container)", null, true, true, Merchandise.PricingMode.FLAT)]
-        serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, false, true)]
-        specialChargeRepository.findAll() >> [new SpecialCharge(1, 1, "Grave Service Setup/Delivery", null, true)]
+        cashAdvanceRepository.findAll() >> [new CashAdvance(1, 1, "Grave Opening", UUID.fromString("11111111-1111-1111-1111-111111111111"))]
+        merchandiseRepository.findAll() >> [new Merchandise(1, 1, "Casket or (alternative container)", null, true, true, Merchandise.PricingMode.FLAT, UUID.fromString("11111111-1111-1111-1111-111111111111"))]
+        serviceRepository.findAll() >> [new Service(1, "Basic Services of Funeral Director & Staff", 1, 1895.00G, false, true, UUID.fromString("11111111-1111-1111-1111-111111111111"))]
+        specialChargeRepository.findAll() >> [new SpecialCharge(1, 1, "Grave Service Setup/Delivery", null, true, UUID.fromString("11111111-1111-1111-1111-111111111111"))]
 
         when:
         def result = mockMvc.perform(get("/catalog"))
@@ -112,8 +112,8 @@ class CatalogControllerSpec extends Specification {
     def "GET /catalog/packages?includeLegacy=false excludes legacy packages"() {
         given:
         servicePackageRepository.findAll() >> [
-                new ServicePackage(1, 1, "Traditional One", 5995.00G, false),
-                new ServicePackage(2, 2, "Legacy Package", 3000.00G, true)
+                new ServicePackage(1, 1, "Traditional One", 5995.00G, false, UUID.fromString("11111111-1111-1111-1111-111111111111")),
+                new ServicePackage(2, 2, "Legacy Package", 3000.00G, true, UUID.fromString("11111111-1111-1111-1111-111111111111"))
         ]
 
         when:
@@ -131,8 +131,8 @@ class CatalogControllerSpec extends Specification {
     def "GET /catalog/packages?includeLegacy=true returns all packages including legacy"() {
         given:
         servicePackageRepository.findAll() >> [
-                new ServicePackage(1, 1, "Traditional One", 5995.00G, false),
-                new ServicePackage(2, 2, "Legacy Package", 3000.00G, true)
+                new ServicePackage(1, 1, "Traditional One", 5995.00G, false, UUID.fromString("11111111-1111-1111-1111-111111111111")),
+                new ServicePackage(2, 2, "Legacy Package", 3000.00G, true, UUID.fromString("11111111-1111-1111-1111-111111111111"))
         ]
 
         when:
@@ -151,7 +151,7 @@ class CatalogControllerSpec extends Specification {
         TenantContext.setTenantId(UUID.fromString("11111111-1111-1111-1111-111111111111"))
         TenantContext.setRole("staff")
         servicePackageRepository.findAllByTenantId(UUID.fromString("11111111-1111-1111-1111-111111111111")) >> [
-                new ServicePackage(1, 1, "Tenant Package", 5995.00G, false)
+                new ServicePackage(1, 1, "Tenant Package", 5995.00G, false, UUID.fromString("11111111-1111-1111-1111-111111111111"))
         ]
 
         when:
@@ -162,5 +162,34 @@ class CatalogControllerSpec extends Specification {
         result.andExpectAll(status().isOk(),
                 jsonPath('$.length()').value(1),
                 jsonPath('$[0].name').value("Tenant Package"))
+    }
+
+    def "GET /catalog/packages never calls findAll() for a non-admin tenant"() {
+        given:
+        TenantContext.setTenantId(UUID.fromString("22222222-2222-2222-2222-222222222222"))
+        TenantContext.setRole("staff")
+        servicePackageRepository.findAllByTenantId(UUID.fromString("22222222-2222-2222-2222-222222222222")) >> []
+
+        when:
+        mockMvc.perform(get("/catalog/packages").accept(MediaType.APPLICATION_JSON))
+
+        then:
+        0 * servicePackageRepository.findAll()
+    }
+
+    def "GET /catalog/packages returns all tenants' data for platform admin"() {
+        given:
+        servicePackageRepository.findAll() >> [
+                new ServicePackage(1, 1, "Tenant A Package", 5995.00G, false, UUID.fromString("22222222-2222-2222-2222-222222222222")),
+                new ServicePackage(2, 2, "Tenant B Package", 4000.00G, false, UUID.fromString("33333333-3333-3333-3333-333333333333"))
+        ]
+
+        when:
+        def result = mockMvc.perform(get("/catalog/packages").accept(MediaType.APPLICATION_JSON))
+
+        then:
+        result.andExpectAll(status().isOk(),
+                jsonPath('$.length()').value(2))
+        0 * servicePackageRepository.findAllByTenantId(_)
     }
 }
