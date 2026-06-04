@@ -30,6 +30,6 @@ public class SettingsController {
     @PutMapping
     public TenantSettings updateSettings(@RequestBody TenantSettings settings) {
         LOGGER.debug("updateSettings called, salesTaxRate={}", settings.salesTaxRate());
-        return settingsRepository.save(new TenantSettings(1, settings.salesTaxRate()));
+        return settingsRepository.save(new TenantSettings(1, settings.salesTaxRate(),  settings.tenantId()));
     }
 }

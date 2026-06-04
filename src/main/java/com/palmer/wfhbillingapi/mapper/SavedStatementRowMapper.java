@@ -9,6 +9,7 @@ import com.palmer.wfhbillingapi.model.lineitem.StatementMerchandiseLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementServiceLineItem;
 import com.palmer.wfhbillingapi.model.lineitem.StatementSpecialChargeLineItem;
 import com.palmer.wfhbillingapi.model.statement.StatementData;
+import com.palmer.wfhbillingapi.security.TenantContext;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -54,7 +55,7 @@ public class SavedStatementRowMapper implements RowMapper<SavedStatement> {
         ServicePackage servicePackage = data.servicePackage();
         Boolean currentLegacy = (Boolean) rs.getObject("current_legacy_package");
         if (servicePackage != null && currentLegacy != null) {
-            servicePackage = new ServicePackage(servicePackage.getId(), servicePackage.getSortOrder(), servicePackage.getName(), servicePackage.getDefaultCost(), currentLegacy);
+            servicePackage = new ServicePackage(servicePackage.getId(), servicePackage.getSortOrder(), servicePackage.getName(), servicePackage.getDefaultCost(), currentLegacy, TenantContext.getTenantId());
         }
         return new SavedStatement(
                 rs.getInt("id"),

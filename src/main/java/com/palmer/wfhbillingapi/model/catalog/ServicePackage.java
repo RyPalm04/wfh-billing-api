@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * Catalog entry for a pre-configured service package. A package bundles a set of services
@@ -18,13 +19,16 @@ public class ServicePackage {
     private final String name;
     private final BigDecimal defaultCost;
     private final boolean legacyPackage;
+    private final UUID tenantId;
 
-    public ServicePackage(int id, int sortOrder, String name, BigDecimal defaultCost, boolean legacyPackage) {
+    public ServicePackage(int id, int sortOrder, String name, BigDecimal defaultCost, boolean legacyPackage,
+                          UUID tenantId) {
         this.id = id;
         this.sortOrder = sortOrder;
         this.name = name;
         this.defaultCost = defaultCost;
         this.legacyPackage = legacyPackage;
+        this.tenantId = tenantId;
     }
 
     public int getId() {
@@ -45,5 +49,9 @@ public class ServicePackage {
 
     public boolean isLegacyPackage() {
         return legacyPackage;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
     }
 }
