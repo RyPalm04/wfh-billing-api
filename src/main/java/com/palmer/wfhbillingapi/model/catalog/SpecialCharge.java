@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * Catalog entry for a special charge (e.g. grave setup, cremation, mileage).
@@ -19,13 +20,16 @@ public class SpecialCharge {
     private final String name;
     private final BigDecimal defaultCost;
     private final boolean requiresDescription;
+    private final UUID tenantId;
 
-    public SpecialCharge(int id, int sortOrder, String name, BigDecimal defaultCost, boolean requiresDescription) {
+    public SpecialCharge(int id, int sortOrder, String name, BigDecimal defaultCost, boolean requiresDescription,
+                         UUID tenantId) {
         this.id = id;
         this.sortOrder = sortOrder;
         this.name = name;
         this.defaultCost = defaultCost;
         this.requiresDescription = requiresDescription;
+        this.tenantId = tenantId;
     }
 
     public int getId() {
@@ -46,5 +50,9 @@ public class SpecialCharge {
 
     public boolean isRequiresDescription() {
         return requiresDescription;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
     }
 }

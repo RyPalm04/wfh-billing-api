@@ -67,10 +67,10 @@ ALTER TABLE service_packages
 ALTER TABLE tenant_settings
     ALTER COLUMN tenant_id SET NOT NULL;
 
-CREATE INDEX idx_saved_statements_tenant ON saved_statements (tenant_id);
-CREATE INDEX idx_services_tenant ON services (tenant_id);
-CREATE INDEX idx_merchandise_tenant ON merchandise (tenant_id);
-CREATE INDEX idx_special_charges_tenant ON special_charges (tenant_id);
-CREATE INDEX idx_cash_advances_tenant ON cash_advances (tenant_id);
-CREATE INDEX idx_service_packages_tenant ON service_packages (tenant_id);
-CREATE INDEX idx_tenant_settings_tenant ON tenant_settings (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_saved_statements_tenant ON saved_statements (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_services_tenant ON services (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_merchandise_tenant ON merchandise (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_special_charges_tenant ON special_charges (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_cash_advances_tenant ON cash_advances (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_service_packages_tenant ON service_packages (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_tenant_settings_tenant ON tenant_settings (tenant_id);

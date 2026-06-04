@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /**
  * Catalog entry for a merchandise item (e.g. casket, urn, vault).
@@ -21,9 +22,10 @@ public class Merchandise {
     private final boolean requiresDescription;
     private final boolean salesTaxable;
     private final PricingMode pricingMode;
+    private final UUID tenantId;
 
     public Merchandise(int id, int sortOrder, String name, BigDecimal defaultCost,
-                       boolean requiresDescription, boolean salesTaxable, PricingMode pricingMode) {
+                       boolean requiresDescription, boolean salesTaxable, PricingMode pricingMode, UUID tenantId) {
         this.id = id;
         this.sortOrder = sortOrder;
         this.name = name;
@@ -31,6 +33,7 @@ public class Merchandise {
         this.requiresDescription = requiresDescription;
         this.salesTaxable = salesTaxable;
         this.pricingMode = pricingMode;
+        this.tenantId = tenantId;
     }
 
     public int getId() {
@@ -59,6 +62,10 @@ public class Merchandise {
 
     public PricingMode getPricingMode() {
         return pricingMode;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
     }
 
     public enum PricingMode {FLAT, PER_UNIT}

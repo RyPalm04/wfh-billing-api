@@ -3,6 +3,8 @@ package com.palmer.wfhbillingapi.model.catalog;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.util.UUID;
+
 /**
  * Catalog entry for a cash advance item. Cash advances are third-party expenses
  * paid on behalf of the family (e.g. grave opening, newspaper notices, ministers).
@@ -14,11 +16,13 @@ public class CashAdvance {
     private final int id;
     private final int sortOrder;
     private final String name;
+    private final UUID tenantId;
 
-    public CashAdvance(int id, int sortOrder, String name) {
+    public CashAdvance(int id, int sortOrder, String name, UUID tenantId) {
         this.id = id;
         this.sortOrder = sortOrder;
         this.name = name;
+        this.tenantId = tenantId;
     }
 
     public int getId() {
@@ -31,5 +35,9 @@ public class CashAdvance {
 
     public String getName() {
         return name;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
     }
 }
