@@ -74,7 +74,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String xApiKey = request.getHeader("X-Api-Key");
 
             if (xApiKey != null && xApiKey.equals(apiKey)) {
-                setSecurityContext(new EternatelUserPrincipal("desktop", null, "DESKTOP", null));
+                String tenantHeader = request.getHeader("X-Tenant-Id");
+                UUID tenantId = null;
+                if (!tenantHeader.isBlank()) {
+                    tenantId = UUID.fromString(tenantHeader);
+                }
+                setSecurityContext(new EternatelUserPrincipal("desktop",
+                        tenantId != null ? tenantId.toString() : null, "DESKTOP", null));
                 filterChain.doFilter(request, response);
                 return;
             }
