@@ -4,9 +4,10 @@ import com.palmer.wfhbillingapi.security.TenantContext;
 import com.palmer.wfhbillingapi.service.DesktopAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.UUID;
@@ -21,19 +22,13 @@ public class DesktopAuthController {
         this.desktopAuthService = desktopAuthService;
     }
 
-    @PostMapping("/activation-code")
-    public Map<String, String> generateCode() {
-        logger.debug("Generating activation code for desktop");
-        String code = desktopAuthService.generateActivationCode(TenantContext.getTenantId());
+    @PostMapping("/license-key")
+    public Map<String, String> generateLicenseKey() {
+        UUID tenantId = TenantContext.getTenantId();
+        logger.debug("getLicenseKey called for tenant {}", tenantId);
+        String key = desktopAuthService.getLicenseKey(TenantContext.getTenantId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No license key found"));
 
-        return Map.of("code", code);
-    }
-
-    @PostMapping("/activate")
-    public Map<String, String> activate(@RequestBody Map<String, String> payload) {
-        logger.debug("Activating for desktop {}", payload);
-        UUID key = desktopAuthService.activate(payload.get("code"));
-
-        return Map.of("licenseKey", key.toString());
+        return Map.of("licenseKey", key);
     }
 }

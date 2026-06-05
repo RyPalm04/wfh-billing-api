@@ -20,12 +20,14 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
     private final TenantRepository tenantRepository;
     private final TenantBootstrapService tenantBootstrapService;
     private final SupabaseAdminService supabaseAdminService;
+    private final DesktopAuthService desktopAuthService;
 
     public StripeWebhookServiceImpl(TenantRepository tenantRepository, TenantBootstrapService tenantBootstrapService,
-                                    SupabaseAdminService supabaseAdminService) {
+                                    SupabaseAdminService supabaseAdminService, DesktopAuthService desktopAuthService) {
         this.tenantRepository = tenantRepository;
         this.tenantBootstrapService = tenantBootstrapService;
         this.supabaseAdminService = supabaseAdminService;
+        this.desktopAuthService = desktopAuthService;
     }
 
     @Transactional
@@ -51,6 +53,8 @@ public class StripeWebhookServiceImpl implements StripeWebhookService {
         tenantBootstrapService.seedTenantTables(tenantId);
 
         supabaseAdminService.updateUserTenantMetadata(supabaseUserId, tenantId);
+
+        desktopAuthService.generateLicenseKey(tenantId);
     }
 
     private void handlePaymentFailed(Event event) {
