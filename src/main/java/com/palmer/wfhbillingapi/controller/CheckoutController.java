@@ -40,8 +40,9 @@ public class CheckoutController {
                                                                              .setQuantity(1L)
                                                                              .build())
                                                         .setSubscriptionData(SubscriptionData.builder()
-                                                                                                                 .putMetadata("supabase_user_id", principal.userId())
-                                                                                                                 .build())
+                                                                                             .putMetadata("supabase_user_id", principal.userId())
+                                                                                             .build())
+                                                        .setCustomerEmail(principal.email())
                                                         .setSuccessUrl(stripeProperties.successUrl())
                                                         .setCancelUrl(stripeProperties.cancelUrl())
                                                         .build();
