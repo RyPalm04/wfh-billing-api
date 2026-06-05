@@ -74,7 +74,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String xApiKey = request.getHeader("X-Api-Key");
 
             if (xApiKey != null && xApiKey.equals(apiKey)) {
-                setSecurityContext(new EternatelUserPrincipal("desktop", null, "DESKTOP"));
+                setSecurityContext(new EternatelUserPrincipal("desktop", null, "DESKTOP", null));
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -90,8 +90,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         Map<String, Object> appMeta = jwt.getClaim("app_metadata");
         String tenantId = appMeta != null ? (String) appMeta.get("tenant_id") : null;
         String role = appMeta != null ? (String) appMeta.get("app_role") : null;
+        String email = jwt.getClaim("email");
 
-        return new EternatelUserPrincipal(userId, tenantId, role);
+        return new EternatelUserPrincipal(userId, tenantId, role, email);
     }
 
     private boolean isSubscriptionActive(EternatelUserPrincipal principal) {

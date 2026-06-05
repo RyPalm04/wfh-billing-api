@@ -33,7 +33,7 @@ supabase:
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY:mock-stripe-secret-key}
-  webhook-secret: ${STRIPE_WEBHOOK_SECRET:mock-stripe-webhook-secret}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_b0348d259f88a34f3b56fd6e9fd9822ea1217d6c48df6fe6a241dcdaaf637069}
   price-id: ${STRIPE_PRICE_ID:mock-stripe-price-id}
   success-url: ${STRIPE_SUCCESS_URL:http://localhost:5173/dashboard}
   cancel-url: ${STRIPE_CANCEL_URL:http://localhost:5173/signup}

@@ -15,6 +15,7 @@ out/
 !**/src/test/**/out/
 
 src/main/resources/secrets.md
+src/main/resources/application-local.yml
 
 lib/
 .claude
