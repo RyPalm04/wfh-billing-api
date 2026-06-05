@@ -1,14 +1,12 @@
 package com.palmer.wfhbillingapi.security;
 
 import com.palmer.wfhbillingapi.repository.TenantRepository;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
@@ -17,7 +15,6 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
