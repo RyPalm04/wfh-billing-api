@@ -7,5 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LicenseKeyRepository extends ListCrudRepository<LicenseKey, Integer> {
-    Optional<LicenseKey> findByKey(UUID key);
+    Optional<LicenseKey> findByKey(String key);
+    Optional<LicenseKey> findByTenantId(UUID tenantId);
 }

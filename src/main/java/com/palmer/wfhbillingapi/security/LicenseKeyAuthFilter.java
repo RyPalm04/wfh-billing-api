@@ -7,8 +7,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,8 +16,6 @@ import java.util.Collections;
 import java.util.UUID;
 
 public class LicenseKeyAuthFilter extends OncePerRequestFilter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LicenseKeyAuthFilter.class);
 
     private final LicenseKeyRepository licenseKeyRepository;
     private final TenantRepository tenantRepository;
@@ -39,15 +35,7 @@ public class LicenseKeyAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        UUID keyValue;
-        try {
-            keyValue = UUID.fromString(header);
-        } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        LicenseKey licenseKey = licenseKeyRepository.findByKey(keyValue).orElse(null);
+        LicenseKey licenseKey = licenseKeyRepository.findByKey(header).orElse(null);
         if (licenseKey == null || licenseKey.revokedAt() != null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
