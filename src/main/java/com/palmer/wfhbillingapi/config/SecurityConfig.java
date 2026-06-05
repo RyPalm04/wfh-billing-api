@@ -22,7 +22,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthFilter jwtAuthFilter(SupabaseProperties supabaseProperties, @Value("${api.key}") String apiKey,
-                                       TenantRepository tenantRepository, LicenseKeyRepository licenseKeyRepository) {
+                                       TenantRepository tenantRepository) {
         return new JwtAuthFilter(supabaseProperties.url() + "/auth/v1/.well-known/jwks.json", apiKey, tenantRepository);
     }
 
@@ -32,7 +32,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                               .requestMatchers("/version", "/webhook/stripe", "/desktop/activate").permitAll()
+                                               .requestMatchers("/version", "/webhook/stripe").permitAll()
                                                .anyRequest().authenticated())
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((request, response, authException) ->
