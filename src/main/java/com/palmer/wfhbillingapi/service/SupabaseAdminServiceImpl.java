@@ -24,8 +24,8 @@ public class SupabaseAdminServiceImpl implements SupabaseAdminService {
                 Map.of("tenant_id", tenantId.toString(),
                         "app_role", "ADMIN"));
 
-        restClient.patch()
-                .uri(supabaseProperties.url() + "/auth/v1/admin/users" + supabaseUserId)
+        restClient.put()
+                .uri(supabaseProperties.url() + "/auth/v1/admin/users/" + supabaseUserId)
                 .header("Authorization", "Bearer " + supabaseProperties.serviceRoleKey())
                 .header("apiKey", supabaseProperties.serviceRoleKey())
                 .contentType(MediaType.APPLICATION_JSON)

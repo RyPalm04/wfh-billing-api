@@ -39,7 +39,13 @@ public class StripeWebhookController {
             return ResponseEntity.badRequest().build();
         }
 
-        stripeWebhookService.handleEvent(event);
+        try {
+            stripeWebhookService.handleEvent(event);
+        } catch (Exception e) {
+            logger.error("Error processing Stripe event {}: {}", event.getType(), e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+
         return ResponseEntity.ok().build();
     }
 }
