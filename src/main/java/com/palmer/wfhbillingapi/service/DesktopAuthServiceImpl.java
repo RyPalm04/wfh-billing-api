@@ -2,10 +2,13 @@ package com.palmer.wfhbillingapi.service;
 
 import com.palmer.wfhbillingapi.model.desktop.LicenseKey;
 import com.palmer.wfhbillingapi.repository.LicenseKeyRepository;
+import com.palmer.wfhbillingapi.repository.TenantRepository;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -21,13 +24,27 @@ public class DesktopAuthServiceImpl implements DesktopAuthService {
     private static final String KEY_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     private final LicenseKeyRepository licenseKeyRepository;
+    private final TenantRepository tenantRepository;
 
-    public DesktopAuthServiceImpl(LicenseKeyRepository licenseKeyRepository) {
+    public DesktopAuthServiceImpl(LicenseKeyRepository licenseKeyRepository, TenantRepository tenantRepository) {
         this.licenseKeyRepository = licenseKeyRepository;
+        this.tenantRepository = tenantRepository;
     }
 
     @Override
     public String generateLicenseKey(UUID tenantId) {
+        if (licenseKeyRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "License key already exists");
+        }
+        
+        boolean active = tenantRepository.findById(tenantId)
+                .map(t -> "active".equals(t.status()) || "platform_manager".equals(t.status()))
+                .orElse(false);
+
+        if (!active) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No active subscription for desktop access");
+        }
+
         String key = buildKey();
 
         licenseKeyRepository.save(new LicenseKey(null, tenantId, key, LocalDateTime.now(), null));

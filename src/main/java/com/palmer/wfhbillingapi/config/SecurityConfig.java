@@ -27,12 +27,17 @@ public class SecurityConfig {
     }
 
     @Bean
+    public LicenseKeyAuthFilter licenseKeyAuthFilter(LicenseKeyRepository licenseKeyRepository, TenantRepository tenantRepository) {
+        return new LicenseKeyAuthFilter(licenseKeyRepository, tenantRepository);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter,
                                            LicenseKeyAuthFilter licenseKeyAuthFilter) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                               .requestMatchers("/version", "/webhook/stripe").permitAll()
+                                               .requestMatchers("/version", "/webhook/stripe", "/error").permitAll()
                                                .anyRequest().authenticated())
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((request, response, authException) ->
