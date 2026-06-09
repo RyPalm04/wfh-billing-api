@@ -58,6 +58,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         return;
                     }
 
+                    if (request.getRequestURI().startsWith("/admin/") && !"platform_admin".equals(principal.role())) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        return;
+                    }
+
                     setSecurityContext(buildFromJwt(jwt));
                 } catch (JwtException e) {
                     logger.error("Unauthorized access to jwt token", e);
