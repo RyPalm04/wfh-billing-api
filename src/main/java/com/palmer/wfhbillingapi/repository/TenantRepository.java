@@ -13,6 +13,10 @@ public interface TenantRepository extends ListCrudRepository<Tenant, UUID> {
     Optional<Tenant> findByStripeCustomerId(String stripeCustomerId);
 
     @Modifying
-    @Query("Update tenants SET status = :status WHERE stripe_customer_id = :stripeCustomerId")
+    @Query("UPDATE tenants SET status = :status WHERE stripe_customer_id = :stripeCustomerId")
     void updateStatusByStripeCustomerId(String status, String stripeCustomerId);
+
+    @Modifying
+    @Query("UPDATE tenants SET status = :status WHERE id = :tenantId")
+    void updateStatusByTenantId(UUID tenantId, String status);
 }
