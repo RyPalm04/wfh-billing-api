@@ -32,6 +32,12 @@ public class AdminController {
         return tenantRepository.findAll();
     }
 
+    @GetMapping("/tenants/{id}")
+    public ResponseEntity<Tenant> getTenant(@PathVariable String id) {
+        logger.debug("getTenant called for id={}", id);
+        return ResponseEntity.ok(tenantRepository.findById(UUID.fromString(id)).orElse(null));
+    }
+
     @PostMapping("/tenants/{id}/suspend")
     public ResponseEntity<Void> suspendTenant(@PathVariable UUID id){
         logger.debug("suspendTenant called for tenant with id: {}", id);
