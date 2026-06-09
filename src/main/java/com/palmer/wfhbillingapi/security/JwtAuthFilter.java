@@ -38,6 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        logger.debug("request path: {}, request header: {}", request.getRequestURI(), request.getHeader("Authorization"));
         try {
             if ("OPTIONS".equals(request.getMethod())) {
                 filterChain.doFilter(request, response);
@@ -53,12 +54,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     Jwt jwt = jwtDecoder.decode(token);
                     EternatelUserPrincipal principal = buildFromJwt(jwt);
 
-                    if (!isSubscriptionActive(principal)) {
+                    if (!isSubscriptionActive(principal) && !request.getRequestURI().contains("/version")) {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         return;
                     }
 
-                    if (request.getRequestURI().startsWith("/admin/") && !"platform_admin".equals(principal.role())) {
+                    if (request.getRequestURI().startsWith("/admin/") && !"platform_manager".equals(principal.role())) {
                         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                         return;
                     }
