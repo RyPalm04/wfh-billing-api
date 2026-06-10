@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * {@link SavedStatementService} implementation backed by {@link JdbcTemplate}.
@@ -51,7 +52,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
             FROM saved_statements ss
             LEFT JOIN service_packages sp ON ss.package_id = sp.id
             WHERE ss.id = ?
-            AND tenant_id = ?
+            AND ss.tenant_id = ?
             """;
 
     private static final String INSERT_STATEMENT = """
@@ -83,7 +84,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     @Override
     public List<StatementSummary> findAll() {
         LOGGER.debug("Finding all saved statements");
-        return wfhBillingJdbcTemplate.query(SELECT_ALL_SUMMARIES, new StatementSummaryRowMapper());
+        return wfhBillingJdbcTemplate.query(SELECT_ALL_SUMMARIES, new StatementSummaryRowMapper(), TenantContext.getTenantId());
     }
 
     @Override
@@ -91,7 +92,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
         LOGGER.debug("Finding saved statement by id {}", id);
 
         try {
-            return wfhBillingJdbcTemplate.queryForObject(SELECT_STATEMENT, new SavedStatementRowMapper(objectMapper), id);
+            return wfhBillingJdbcTemplate.queryForObject(SELECT_STATEMENT, new SavedStatementRowMapper(objectMapper), id, TenantContext.getTenantId());
         } catch (EmptyResultDataAccessException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Statement not found: " + id);
         }
@@ -140,7 +141,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     @Override
     public SavedStatement update(int id, StatementRequest request) {
         LOGGER.debug("Updating saved statement {}", request);
-        Integer rowCount = wfhBillingJdbcTemplate.queryForObject("SELECT COUNT(*) FROM saved_statements WHERE id = ?", Integer.class, id);
+        Integer rowCount = wfhBillingJdbcTemplate.queryForObject("SELECT COUNT(*) FROM saved_statements WHERE id = ? and tenant_id = ?", Integer.class, id, TenantContext.getTenantId());
 
         if (Objects.nonNull(rowCount) && !rowCount.equals(1)) {
             LOGGER.error("Statement requested to be updated not found. id={}", id);
@@ -157,7 +158,8 @@ public class SavedStatementServiceImpl implements SavedStatementService {
                 request.salesTaxRate(),
                 request.payment(),
                 serializeData(request),
-                id
+                id,
+                TenantContext.getTenantId()
         );
 
         return findById(id);
@@ -183,7 +185,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     @Override
     public int nextControlNumber() {
         LOGGER.debug("Next control number called");
-        Integer max = wfhBillingJdbcTemplate.queryForObject(SELECT_MAX_CONTROL_NUMBER, Integer.class);
+        Integer max = wfhBillingJdbcTemplate.queryForObject(SELECT_MAX_CONTROL_NUMBER, Integer.class, TenantContext.getTenantId());
 
         if (max == null) {
             LOGGER.debug("Next control number is null returning 1001");
@@ -198,7 +200,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     public void delete(int id) {
         LOGGER.debug("Deleting saved statement {}", id);
 
-        int rows = wfhBillingJdbcTemplate.update(DELETE_STATEMENT, id);
+        int rows = wfhBillingJdbcTemplate.update(DELETE_STATEMENT, id, TenantContext.getTenantId());
 
         if (rows != 1) {
             LOGGER.error("Statement requested to be deleted not found. id={}", id);
