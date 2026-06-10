@@ -8,6 +8,7 @@ import com.palmer.wfhbillingapi.mapper.StatementSummaryRowMapper;
 import com.palmer.wfhbillingapi.model.statement.SavedStatement;
 import com.palmer.wfhbillingapi.model.statement.StatementData;
 import com.palmer.wfhbillingapi.model.statement.StatementSummary;
+import com.palmer.wfhbillingapi.security.TenantContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
     private static final String SELECT_ALL_SUMMARIES = """
             SELECT id, control_number, services_for_name, service_date, saved_at
             FROM saved_statements
+            WHERE tenant_id = ?
             ORDER BY saved_at DESC
             """;
 
@@ -49,13 +51,14 @@ public class SavedStatementServiceImpl implements SavedStatementService {
             FROM saved_statements ss
             LEFT JOIN service_packages sp ON ss.package_id = sp.id
             WHERE ss.id = ?
+            AND tenant_id = ?
             """;
 
     private static final String INSERT_STATEMENT = """
             INSERT INTO saved_statements
                 (control_number, services_for_name, date_of_death, place_of_death,
-                 service_date, reason_for_embalming, package_id, sales_tax_rate, payment, data)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb)
+                 service_date, reason_for_embalming, package_id, sales_tax_rate, payment, data, tenant_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?)
             """;
 
     private static final String UPDATE_STATEMENT = """
@@ -64,11 +67,12 @@ public class SavedStatementServiceImpl implements SavedStatementService {
                 service_date = ?, reason_for_embalming = ?, package_id = ?,
                 sales_tax_rate = ?, payment = ?, data = ?::jsonb, saved_at = CURRENT_TIMESTAMP
             WHERE id = ?
+            AND tenant_id = ?
             """;
 
-    private static final String DELETE_STATEMENT = "DELETE FROM saved_statements where id = ?";
+    private static final String DELETE_STATEMENT = "DELETE FROM saved_statements where id = ? AND tenant_id = ?";
 
-    private static final String SELECT_MAX_CONTROL_NUMBER = "SELECT MAX(control_number) FROM saved_statements";
+    private static final String SELECT_MAX_CONTROL_NUMBER = "SELECT MAX(control_number) FROM saved_statements WHERE tenant_id = ?";
 
     @Autowired
     private JdbcTemplate wfhBillingJdbcTemplate;
@@ -116,6 +120,7 @@ public class SavedStatementServiceImpl implements SavedStatementService {
             preparedStatement.setBigDecimal(8, request.salesTaxRate());
             preparedStatement.setBigDecimal(9, request.payment());
             preparedStatement.setString(10, serializeData(request));
+            preparedStatement.setObject(11, TenantContext.getTenantId());
             return preparedStatement;
         }, keyHolder);
 
@@ -181,8 +186,8 @@ public class SavedStatementServiceImpl implements SavedStatementService {
         Integer max = wfhBillingJdbcTemplate.queryForObject(SELECT_MAX_CONTROL_NUMBER, Integer.class);
 
         if (max == null) {
-            LOGGER.debug("Next control number is null returning 1");
-            return 1;
+            LOGGER.debug("Next control number is null returning 1001");
+            return 1001;
         }
 
         LOGGER.debug("Next control number is {}", max + 1);
