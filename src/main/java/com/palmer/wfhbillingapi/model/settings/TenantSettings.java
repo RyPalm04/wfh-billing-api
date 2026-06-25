@@ -7,5 +7,5 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Table("tenant_settings")
-public record TenantSettings(@Id int id, BigDecimal salesTaxRate, UUID tenantId) {
+public record TenantSettings(@Id UUID tenantId, BigDecimal salesTaxRate) {
 }

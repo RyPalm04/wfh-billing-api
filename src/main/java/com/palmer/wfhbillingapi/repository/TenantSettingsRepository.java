@@ -6,6 +6,5 @@ import org.springframework.data.repository.ListCrudRepository;
 import java.util.List;
 import java.util.UUID;
 
-public interface TenantSettingsRepository extends ListCrudRepository<TenantSettings, Integer> {
-    List<TenantSettings> findAllByTenantId(UUID tenantId);
+public interface TenantSettingsRepository extends ListCrudRepository<TenantSettings, UUID> {
 }
