@@ -3,8 +3,6 @@ package com.palmer.wfhbillingapi.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +50,10 @@ public class TenantBootstrapServiceImpl implements TenantBootstrapService {
             WHERE tenant_id = '00000000-0000-0000-0000-000000000000';
             """;
 
+    private static final String SEED_DEFAULT_SETTINGS = """
+            INSERT INTO tenant_settings (tenant_id, sales_tax_rate) VALUES (:tenant_id, 0.0000)
+            """;
+
     @Autowired
     private NamedParameterJdbcTemplate eternatelJdbcTemplate;
 
@@ -67,7 +69,8 @@ public class TenantBootstrapServiceImpl implements TenantBootstrapService {
         eternatelJdbcTemplate.update(SEED_TENANT_SPECIAL_CHARGES, params);
         eternatelJdbcTemplate.update(SEED_TENANT_CASH_ADVANCES, params);
         eternatelJdbcTemplate.update(SEED_TENANT_SERVICE_PACKAGES, params);
-        
+        eternatelJdbcTemplate.update(SEED_DEFAULT_SETTINGS, params);
+
         LOGGER.info("Successfully seeded tenant tables for tenant: {}", tenantId);
     }
 }
